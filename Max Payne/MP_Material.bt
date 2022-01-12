@@ -12,10 +12,24 @@ typedef struct
 
     ByteString mat_name;
 
-    FSeek(mat_start + material_size);
+    ushort shorts[5] <bgcolor=CL_PARSED>;
+
+    FSeek((mat_start + material_size ) - 4);
+    uint odd_val <bgcolor=0xaaaaaa>;
 } KF2Material <read=ReadKF2Material>;
 
 string ReadKF2Material(KF2Material &mat)
 {
     return ReadByteString(mat.mat_name);
 }
+
+typedef struct
+{
+    uint block_size<bgcolor=CL_SINGLEVALUE, comment="Material block size">;
+    ubyte same[30] <hidden=true, bgcolor=CL_PADDING>;
+    
+    ubyte material_count <bgcolor=CL_SINGLEVALUE>;
+    ubyte same_b[9] <hidden=true, bgcolor=CL_PADDING>;
+
+    KF2Material materials[material_count] <optimize=false>;
+} KF2MaterialBlock;

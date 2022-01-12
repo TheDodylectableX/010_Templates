@@ -4,19 +4,16 @@
 
 #include "MP_Common.bt"
 #include "MP_Material.bt"
+#include "MP_MeshBlock.bt"
 
 LittleEndian();
 
 typedef struct
 {
     ubyte junk[9] <hidden=true, bgcolor=CL_PADDING>;
-    RelativeOffset odd_offset(0) <bgcolor=CL_POINTER>;
-    ubyte same[30] <hidden=true, bgcolor=CL_PADDING>;
-    
-    ubyte material_count <bgcolor=CL_SINGLEVALUE>;
-    ubyte same_b[9] <hidden=true, bgcolor=CL_PADDING>;
 
-    KF2Material materials[material_count] <optimize=false>;
+    KF2MaterialBlock block_material;
+    KF2MeshBlock block_mesh;
 } KF2File;
 
 KF2File file;

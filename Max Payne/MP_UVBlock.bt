@@ -1,0 +1,12 @@
+//------------------------------------------------
+// KF2: UV block
+//------------------------------------------------
+
+typedef struct
+{
+    local uint block_start = FTell();
+
+    uint block_size <bgcolor=CL_SINGLEVALUE>;
+
+    FSeek(block_start + block_size);
+} KF2UVBlock;

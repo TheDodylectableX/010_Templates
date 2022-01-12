@@ -1,0 +1,21 @@
+//------------------------------------------------
+// MP2 Material
+//------------------------------------------------
+
+typedef struct
+{
+    local int mat_start = FTell();
+
+    uint material_size <bgcolor=CL_SINGLEVALUE>;
+    ubyte unk_a <bgcolor=CL_SINGLEVALUE>;
+    ubyte unk_b <bgcolor=CL_SINGLEVALUE>;
+
+    ByteString mat_name;
+
+    FSeek(mat_start + material_size);
+} KF2Material <read=ReadKF2Material>;
+
+string ReadKF2Material(KF2Material &mat)
+{
+    return ReadByteString(mat.mat_name);
+}

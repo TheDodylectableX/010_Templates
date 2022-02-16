@@ -1,0 +1,37 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: Tony Hawk's American Wasteland IMG.WPC format template
+//   Authors: Dodylectable / Zedek The Plague Doctor ™️
+//   Version: 1.0
+//   Purpose: Reverse engineering / converting any picture format into IMG.WPC
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+//------------------------------------------------
+// THAW .img.wpc file
+//------------------------------------------------
+
+LittleEndian();
+
+typedef struct
+{
+    uint magic <comment="ABADDOOD">;
+    ushort unk_a;
+    ushort unk_b;
+    uint unk;
+    ushort width;
+    ushort height;
+    ushort width_b <comment="Secondary values">;
+    ushort height_b <comment="Secondary values">;
+    ubyte mipmaps_maybe;
+    ubyte bpp_maybe;
+    ubyte compression;
+    ubyte dds_something;
+    uint filesize <comment="Sometimes wrong on uncompressed">;
+} THAWImg;
+
+THAWImg file;

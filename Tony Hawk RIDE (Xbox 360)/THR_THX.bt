@@ -1,0 +1,27 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: Tony Hawk: Ride .THX Format Template
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering .THX (Texture Header) file format
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+BigEndian();
+
+typedef struct
+{
+    uint vals[5];
+    ushort width;
+    ushort height;
+    FSeek(0x4B);
+    ubyte imgFormat;
+    FSeek(88);
+    uint imgSize;
+} THRTHX;
+
+THRTHX file;

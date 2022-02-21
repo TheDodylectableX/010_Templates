@@ -1,0 +1,31 @@
+//------------------------------------------------
+//--- 010 Editor v11.0.1 Binary Template
+//
+//      File: Resident Evil (0/1/5/6/REV/REV2) .TEX Texture Format
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reversing .TEX texture format of various Resident Evil games
+//  Category: 
+// File Mask: 
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+LittleEndian();
+
+typedef struct
+{
+    string magic;
+    FSeek(12);
+    short width;
+    FSeek(14);
+    short height;
+    FSeek(45);
+    short extra_height_width;
+    FSeek(20);
+    string compression;
+    FSeek(8);
+    ubyte mipmaps;
+} RE_TEX;
+
+RE_TEX file;

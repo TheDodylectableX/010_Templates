@@ -1,31 +1,47 @@
-//------------------------------------------------
-//--- 010 Editor v11.0.1 Binary Template
+//-------------------------------------------------------------------------
+//--- 010 Editor Binary Template
 //
-//      File: Resident Evil (0/1/5/6/REV/REV2) .TEX Texture Format
+//      File: Resident Evil (0/1/5/6/REV/REV2) .TEX Texture Format (ONLY WORKS WITH RE5 FOR NOW)
 //   Authors: Dodylectable
 //   Version: 1.0
-//   Purpose: Reversing .TEX texture format of various Resident Evil games
+//   Purpose: Reversing .TEX texture format of various Resident Evil games (ONLY WORKS WITH RE5 FOR NOW)
 //  Category: 
-// File Mask: 
+// File Mask: .TEX
 //  ID Bytes: 
 //   History: 
-//------------------------------------------------
+//-------------------------------------------------------------------------
 
 LittleEndian();
 
 typedef struct
 {
-    string magic;
+    char Magic[3] <comment="The magic of the file">;
+    FSeek(4);
+    uint NOTE_THIS_VALUE <comment="Possibly the filesize? Probably not">;
     FSeek(12);
-    short width;
+    short Width <comment="The width of the texture">;
     FSeek(14);
-    short height;
+    short Height <comment="The height of the texture">;
     FSeek(45);
-    short extra_height_width;
+    short extra_height_width <comment="Not sure what this is but I decided to note it, possibly another width or height value">;
     FSeek(20);
-    string compression;
+    char compression[4] <comment="The compression of the texture (Mostly DXT1 or 5)">;
+    float Float_A;
+    float Float_B;
+    int Zero <comment="No idea what is this">;
+    int Offset_A <comment="The start of the first gb section">;
+    int Offset_B <comment="The start of the second gb section">;
+    int Offset_C <comment="The start of the third gb section">;
+    int Offset_D <comment="The start of the fourth gb section">;
+    int Offset_E <comment="The start of the fifth gb section">;
+    int Offset_F <comment="The start of the sixth gb section">;
+    int Offset_G <comment="The start of the seventh gb section">;
+    int Offset_H <comment="The start of the eighth gb section">;
+    int Offset_I <comment="The start of the ninth gb section">;
+    int Offset_J <comment="The start of the tenth gb section">;
+    int Offset_K <comment="The start of the eleventh gb section / I really need to remake this offset section lol">;
     FSeek(8);
-    ubyte mipmaps;
+    ubyte MipMapsCount <comment="The count of how many mipmaps the texture has">;
 } RE_TEX;
 
 RE_TEX file;

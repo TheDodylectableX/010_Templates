@@ -1,0 +1,41 @@
+//------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: RenderWare Texture Dictionary Template
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reversing .TXD/.TDX files for various titles powered by RenderWare
+//  Category: 
+// File Mask: .TXD / .TDX
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------------------------------------
+
+LittleEndian();
+
+typedef struct
+{
+    ubyte Magic <comment="The magic of the file">;
+    FSeek(24);
+    ubyte MaterialCount <comment="The count of how many materials/textures in the file">;
+    FSeek(32);
+    uint InterestingRepeatedValue <comment="Seemed to be repeated before each texture, decided to document it">;
+    FSeek(60);
+    string TextureName <comment="The name of the material/texture">;
+    FSeek(324);
+    ubyte Width <comment="The width of the material's texture">;
+    FSeek(326);
+    ubyte Height <comment="The height of the material's texture">;
+    float Float_A;
+    float Float_B;
+    float Float_C;
+    float Float_D;
+    int Offset_A;
+    int Offset_B;
+    int Offset_C;
+    int Offset_D;
+    FSeek(336);
+    string Data <comment="The data of the material/texture">;
+} RW_TXD <comment="RenderWare Texture Dictionary File">;
+
+RW_TXD file;

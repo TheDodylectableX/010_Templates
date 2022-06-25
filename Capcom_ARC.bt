@@ -1,0 +1,43 @@
+//--------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: Capcom .ARC Archive Template
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering Capcom games' .ARC archive format
+//  Category: Archives
+// File Mask: .ARC
+//  ID Bytes: 
+//   History: 
+//--------------------------------------------------------------------
+
+typedef struct
+{
+    char Magic[3] <comment="The magic of the file">;
+    FSkip(3);
+    ushort FileCount <comment="File count">;
+} Header;
+
+typedef struct
+{
+    char FileListing[64] <comment="File listing">;
+    uint UnknownValue_A <comment="Unknown Value A">;
+    uint UnknownValue_B <comment="Unknown Value B">;
+    uint UnknownValue_C <comment="Unknown Value C">;
+    uint UnknownValue_D <comment="Unknown Value D">;
+} Files;
+
+typedef struct
+{
+    char null[1024];
+} Data;
+
+typedef struct
+{
+    Header header;
+if (header.FileCount > 0)
+    Files files[header.FileCount] <comment="A file", optimize=false>;
+    Data data;
+} Capcom_ARC <comment="Capcom .ARC Archive">;
+
+Capcom_ARC file;

@@ -1,0 +1,33 @@
+//-----------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: Tony Hawk's Proving Ground IMG.PS3 Image Header
+//   Authors: Dodylectable
+//   Version: 
+//   Purpose: Reverse engineering IMV.PS3s' headers
+//  Category: Images / Textures
+// File Mask: IMG.PS3
+//  ID Bytes: 
+//   History: 
+//-----------------------------------------------------------
+
+// There's a lot of duplicated values so I decided to put them in the struct anyway
+
+BigEndian();
+
+typedef struct
+{
+    FSkip(8);
+    ushort PrimaryWidth <comment="Primary width value">;
+    ushort PrimaryHeight <comment="Primary height value">;
+    ushort PrimaryDXT <comment="DXT? Could be 1 or 5">;
+    ushort SecondaryWidth <comment="Secondary width value">;
+    ushort SecondaryHeight <comment="Secondary height value">;
+    ushort SecondaryDXT <comment="DXT? Could be 1 or 5">;
+    FSkip(36);
+    ushort TeritaryWidth <comment="Teritary width value">;
+    ushort TeritaryHeight <comment="Teritary height value">;
+    ushort TeritaryDXT <comment="DXT? Could be 1 or 5">;
+} THPG_IMG_PS3 <comment="Tony Hawk's Proving Ground IMG.PS3">;
+
+THPG_IMG_PS3 file;

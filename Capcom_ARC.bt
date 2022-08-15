@@ -13,30 +13,167 @@
 
 typedef struct
 {
-    char Magic[3] <comment="The magic of the file">;
-    FSkip(3);
+    char Magic[4] <comment="The magic of the file">;
+    ushort ARCVersion;
     ushort FileCount <comment="File count">;
-} Header;
+} Header <comment="The archive's header">;
 
 typedef struct
 {
     char FileListing[64] <comment="File listing">;
-    uint UnknownValue_A <comment="Unknown Value A">;
-    uint UnknownValue_B <comment="Unknown Value B">;
-    uint UnknownValue_C <comment="Unknown Value C">;
-    uint UnknownValue_D <comment="Unknown Value D">;
-} Files;
+    uint FormatHash <comment="Format hash">;
+    uint CompressedFileSize <comment="A file's compressed filesize">;
+    ubyte UncompressedFileSize[3] <comment="A file's uncompressed filesize">;
+    ubyte FileFlags <comment="File flags">;
+    uint FileOffset <comment="File offset">;
+} Files<read=ReadFiles>;
+
+string ReadFiles(Files &entry)
+{
+    // Check hash and get string
+    
+    switch (entry.FormatHash)
+    {
+        case 0x241F5DEB:
+            return ".tex - Texture";
+            break;
+            
+        case 0x2749C8A8:
+            return ".mrl - Material";
+            break;
+            
+        case 0x76820D81:
+            return ".lmt - Motion List";
+            break;
+
+        case 0x358012E8:
+            return ".vib - Vibration";
+            break;
+            
+        case 0x6D5AE854:
+            return ".efl - Effect List";
+            break;
+            
+        case 0x4E397417:
+            return ".ean - Effect Animation";
+            break;
+            
+        case 0x4C0DB839:
+            return ".sdl - Scheduler";
+            break;
+            
+        case 0x58A15856:
+            return ".mod - Model";
+            break;
+
+        case 0x36E29465:
+            return ".hkx - Havok Collision";
+            break;
+
+        case 0x51FC779F:
+            return ".sbc - Collision";
+            break;
+
+        case 0x4EF19843:
+            return ".nav - Navigation Mesh";
+            break;
+
+        case 0x3E363245:
+            return ".chn - Chain";
+            break;
+
+        case 0x65B275E5:
+            return ".sce - Scenario";
+            break;
+
+        case 0x1BCC4966:
+            return ".srq - Sound Request";
+            break;
+
+        case 0x357EF6D4:
+            return ".lrp - ????";
+            break;
+
+        case 0x326F732E:
+            return ".cst - ????";
+            break;
+
+        case 0x26E7FF:
+            return ".ccl - ????";
+            break;
+
+        case 0x5A7E5D8A:
+            return ".anm - Animation";
+            break;
+
+        case 0x448BBDD4:
+            return ".gem - ????";
+            break;
+
+        case 0x9A64A8:
+            return ".lmcm - ????";
+            break;
+
+        case 0x724DF879:
+            return ".xsew - ????";
+            break;
+
+        case 0x15D782FB:
+            return ".sbkr - ????";
+            break;
+
+        case 0x535D969F:
+            return ".ctc - ????";
+            break;
+
+        case 0x2282360D:
+            return ".jex - ????";
+            break;
+
+        case 0x2D12E086:
+            return ".srd - ????";
+            break;
+
+        case 0x7E33A16C:
+            return ".spc - ????";
+            break;
+
+        case 0x4CA26828:
+            return ".bmse - ????";
+            break;
+
+        case 0x7437CCE:
+            return ".base - ????";
+            break;
+
+        case 0x12191BA1:
+            return ".epv - ????";
+            break;
+
+        default:
+            return "???? - Unknown Format";
+            break;
+    }
+}
 
 typedef struct
 {
-    char null[1024];
-} Data;
+    local ubyte zero;
+
+        zero = ReadByte();
+            while (zero == 0) // Skip the empty 00's of the archive and head right into the data block
+{
+    FSkip(1);
+    zero = ReadByte();
+}
+    string EntireDataBlock <comment="Data block actually starts here because FSkip(0); doesn't show on the struct itself">;
+} Data <comment="Data block, ZLib compressed; See 78 9C at the start of the block">;
 
 typedef struct
 {
     Header header;
 if (header.FileCount > 0)
-    Files files[header.FileCount] <comment="A file", optimize=false>;
+    Files files[header.FileCount] <comment="File entry", optimize=false>;
     Data data;
 } Capcom_ARC <comment="Capcom .ARC Archive">;
 

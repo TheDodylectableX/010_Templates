@@ -35,6 +35,7 @@ string ReadFiles(Files &entry)
     switch (entry.FormatHash)
     {
         case 0x241F5DEB:
+        case 0x3CAD8076: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) .TEX
             return ".tex - Texture";
             break;
             
@@ -43,6 +44,7 @@ string ReadFiles(Files &entry)
             break;
             
         case 0x76820D81:
+        case 0x139EE51D: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) .LMT
             return ".lmt - Motion List";
             break;
 
@@ -63,6 +65,7 @@ string ReadFiles(Files &entry)
             break;
             
         case 0x58A15856:
+        case 0x1041BD9E: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) .MOD
             return ".mod - Model";
             break;
 
@@ -148,6 +151,30 @@ string ReadFiles(Files &entry)
 
         case 0x12191BA1:
             return ".epv - ????";
+            break;
+
+        case 0x27F3C33D:
+            return ".dfd - ????";
+            break;
+
+        case 0x652A93A4:
+            return ".atk - ????";
+            break;
+
+        case 0x470745CB:
+            return ".txt - ????";
+            break;
+
+        case 0x4EA4E09A:
+            return ".col - ????";
+            break;
+
+        case 0x21034C90:
+            return ".arcs - ????";
+            break;
+
+        case 0x5A7FEA62:
+            return ".ik - ????";
             break;
 
         default:

@@ -1,15 +1,15 @@
-//-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
 //      File: Resident Evil (0/1/5/6/REV/REV2) .TEX Texture Format (ONLY WORKS WITH RE5 FOR NOW)
 //   Authors: Dodylectable
 //   Version: 1.0
 //   Purpose: Reversing .TEX texture format of various Resident Evil games (ONLY WORKS WITH RE5 FOR NOW)
-//  Category: 
+//  Category: Textures
 // File Mask: .TEX
 //  ID Bytes: 
 //   History: 
-//-------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------
 
 LittleEndian();
 

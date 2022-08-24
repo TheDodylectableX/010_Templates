@@ -1,19 +1,17 @@
-//-----------------------------------------------------------
+//----------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
-//      File: Tony Hawk's Proving Ground IMG.PS3 Image Header
+//      File: Neversoft PlayStation 3 games IMG.PS3 Image Header
 //   Authors: Dodylectable
 //   Version: 
-//   Purpose: Reverse engineering IMV.PS3s' headers
+//   Purpose: Reverse engineering IMV.PS3s' headers of all PS3 NS games
 //  Category: Images / Textures
-// File Mask: IMG.PS3
+// File Mask: .IMG.PS3
 //  ID Bytes: 
 //   History: 
-//-----------------------------------------------------------
+//----------------------------------------------------------------------
 
 // There's a lot of duplicated values so I decided to put them in the struct anyway
-
-BigEndian();
 
 typedef struct
 {
@@ -28,6 +26,6 @@ typedef struct
     ushort TeritaryWidth <comment="Teritary width value">;
     ushort TeritaryHeight <comment="Teritary height value">;
     ushort TeritaryDXT <comment="DXT? Could be 1 or 5">;
-} THPG_IMG_PS3 <comment="Tony Hawk's Proving Ground IMG.PS3">;
+} NS_IMG_PS3 <comment="Neversoft IMG.PS3">;
 
-THPG_IMG_PS3 file;
+NS_IMG_PS3 file;

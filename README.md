@@ -1,2 +1,2 @@
 # Dody's 010 Editor Templates
-All my 010 Editor templates will be here, usually stuff related to game files (such as models, textures, archives, etc.) or anything else will be here
+This teeny tiny repository stores all of my templates for 010 Editor, Usually stuff related to game files such as (but not limited to) models, textures and archives to name a few types.

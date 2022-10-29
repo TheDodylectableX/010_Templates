@@ -1,0 +1,71 @@
+//------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: Ubisoft JADE Engine .BF (BIG) Template
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering .BF (BIG) files of Ubisoft's JADE Engine
+//  Category: Archives
+// File Mask: .BF
+//  ID Bytes: 42 49 47 00
+//   History: 
+//------------------------------------------------------------------------
+
+// Beyond Good and Evil (PC) File Start:             0x015D34
+// Prince of Persia - Sands of Time (PC) File Start:  0x1796EC
+// Prince of Persia - Warrior Within (PC) File Start:  0x1C90AC
+// Prince of Persia - Two Thrones (PC) File Start:      0x1C34EC
+// Teenage Mutant Ninja Turtles (PC) File Start:         0x188144
+
+typedef struct // THE HEADER STRUCT
+{
+    char Magic[4] <comment="Archive magic (ALWAYS BIG)">;
+    uint Version <comment="Archive version">;
+    uint FileCount <comment="File count">;
+    uint FolderCount <comment="I'm actually unsure of this">;
+    FSkip(16); // FSkip(8); char AlwaysFF[8] <comment="Always 8 bytes of FF in this section, useless">; [REPLACE FSKIP 16 WITH 8 IF PLANNING ON USING THIS BUT I DON'T SEE THE POINT]
+    uint UnknownHeaderValueA <comment="Needs more research">;
+    FSkip(4); // uint AlwaysOne <comment="For some reason this is always 1 on all archives, Needs more research">;
+    uint PermanentlyFixedNumberA <comment="This integer is always 3422552206 for PoP and TMNT, 1895841785 for BGAE, Needs more research">;
+    FSkip(4); // uint FileCountAgain <comment="File count again">;
+    uint UnknownHeaderValueD <comment="Needs more research">;
+    uint PermanentlyFixedNumberB <comment="This integer is always 68 regardless of game, Needs more research">;
+    uint PermanentlyFixedNumberC <comment="This integer is always 4294967295 regardless of game, Needs more research">;
+    FSkip(4); // uint AlwaysZero <comment="AlwaysOne's contrary sibling, Needs more research">;
+    uint UnknownHeaderValueB <comment="Needs more research">;
+} Header <comment="Archive header">;
+
+typedef struct // THE FILE OFFSETS STRUCT
+{
+    uint FileOffset <comment="File offset">;
+    FSkip(4); // SKIP GARBAGE OUT OF RANGE INTEGERS
+} FileOffsets <comment="File offsets">;
+
+typedef struct // SKIP PADDING GARBAGE AKA ZEROS
+{
+    local ubyte zero;
+        zero = ReadByte();
+            while (zero == 0)
+{
+    FSkip(1);
+        zero = ReadByte();
+} // NOW, THE FILES STRUCT
+    uint FileSize <comment="File size">;
+    uint UnknownValueA <comment="Unknown Value A">;
+    uint UnknownValueB <comment="Unknown Value B">;
+    uint FileFlags <comment="File flags maybe? Needs more research">;
+    uint UnknownValueD <comment="Unknown Value D">;
+    char FileName[64] <comment="File name">;
+    // FSkip(4); char UnknownChecksum[32]<comment="Looks like some sort of checksum or key, Needs more research">; [USE IF RUNNING TEMPLATE ON TMNT 2007 ARCHIVE]
+} Files <comment="Archive files">;
+
+typedef struct // MAIN STRUCT
+{
+    Header header;
+if (header.FileCount > 0)
+    FileOffsets fileoffsets[header.FileCount] <comment="File offsets", optimize=false>;
+if (header.FileCount > 0)
+    Files files[header.FileCount] <comment="File entry", optimize=false>;
+} Ubisoft_BF;
+
+Ubisoft_BF file <comment="Ubisoft .BF (BIG) Archive">;

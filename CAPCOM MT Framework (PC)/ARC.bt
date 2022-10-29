@@ -1,24 +1,24 @@
-//--------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
-//      File: Capcom .ARC Archive Template
-//   Authors: Dodylectable
-//   Version: 1.0
-//   Purpose: Reverse engineering Capcom games' .ARC archive format
+//      File: Capcom MT Framework Engine .ARC Archive Template
+//   Authors: Dodylectable (Making the template / Finding out a few new hashes) - Che (DMC4 non-SE format hashes) - Many others for format hashes
+//   Version: 1.4
+//   Purpose: Reverse engineering Capcom games' .ARC archive format that're powered by MT Framework
 //  Category: Archives
 // File Mask: .ARC
-//  ID Bytes: 
+//  ID Bytes: 41 52 43 00
 //   History: 
-//--------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------
 
-typedef struct
+typedef struct // THE HEADER STRUCT
 {
-    char Magic[4] <comment="The magic of the file">;
-    ushort ARCVersion;
+    char Magic[4] <comment="Archive magic">;
+    ushort Version <comment="Archive version">;
     ushort FileCount <comment="File count">;
 } Header <comment="The archive's header">;
 
-typedef struct
+typedef struct // THE FILES STRUCT
 {
     char FileListing[64] <comment="File listing">;
     uint FormatHash <comment="Format hash">;
@@ -28,10 +28,8 @@ typedef struct
     uint FileOffset <comment="File offset">;
 } Files<read=ReadFiles>;
 
-string ReadFiles(Files &entry)
+string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL FORMAT EXTENSIONS
 {
-    // Check hash and get string
-    
     switch (entry.FormatHash)
     {
         case 0x241F5DEB:
@@ -118,11 +116,11 @@ string ReadFiles(Files &entry)
             break;
 
         case 0x724DF879:
-            return ".xsew - ????";
+            return ".xsew - Sound Related?";
             break;
 
         case 0x15D782FB:
-            return ".sbkr - ????";
+            return ".sbkr - Sound Related?";
             break;
 
         case 0x535D969F:
@@ -162,7 +160,7 @@ string ReadFiles(Files &entry)
             break;
 
         case 0x470745CB:
-            return ".txt - ????";
+            return ".txt - Text Document?";
             break;
 
         case 0x4EA4E09A:
@@ -170,11 +168,23 @@ string ReadFiles(Files &entry)
             break;
 
         case 0x21034C90:
-            return ".arcs - ????";
+            return ".arcs - Different Archive Type?";
             break;
 
         case 0x5A7FEA62:
-            return ".ik - ????";
+            return ".ik - Inverse Kinematics?";
+            break;
+
+        case 0x7808EA10:
+            return ".rtex - Different Texture Type?";
+            break;
+
+        case 0x39C52040:
+            return ".lcm - ????";
+            break;
+
+        case 0x66B45610:
+            return ".fsm - ????";
             break;
 
         default:
@@ -183,16 +193,15 @@ string ReadFiles(Files &entry)
     }
 }
 
-typedef struct
+typedef struct // SKIP PADDING GARBAGE AKA ZEROS THEN HEAD INTO THE DATA BLOCK
 {
     local ubyte zero;
-
         zero = ReadByte();
-            while (zero == 0) // Skip the empty 00's of the archive and head right into the data block
+            while (zero == 0)
 {
     FSkip(1);
-    zero = ReadByte();
-}
+        zero = ReadByte();
+} // NOW, THE DATA BLOCK
     string EntireDataBlock <comment="Data block actually starts here because FSkip(0); doesn't show on the struct itself">;
 } Data <comment="Data block, ZLib compressed; See 78 9C at the start of the block">;
 

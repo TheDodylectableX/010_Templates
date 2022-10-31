@@ -1,15 +1,15 @@
-//-----------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
 //      File: Capcom MT Framework Engine .ARC Archive Template
-//   Authors: Dodylectable (Making the template / Finding out a few new hashes) - Che (DMC4 non-SE format hashes) - Many others for format hashes
-//   Version: 1.4
+//   Authors: Dodylectable (Making the template / Finding out a few new hashes) - Che (DMC4 non-SE format hashes) - Rick Gibbed (DD / RE5 hashes) - Many others for format hashes
+//   Version: 1.5
 //   Purpose: Reverse engineering Capcom games' .ARC archive format that're powered by MT Framework
 //  Category: Archives
 // File Mask: .ARC
 //  ID Bytes: 41 52 43 00
 //   History: 
-//-----------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 typedef struct // THE HEADER STRUCT
 {
@@ -100,7 +100,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
 
         case 0x26E7FF:
-            return ".ccl - ????";
+            return ".ccl - Chain Collision";
             break;
 
         case 0x5A7E5D8A:
@@ -132,23 +132,23 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
 
         case 0x2D12E086:
-            return ".srd - ????";
+            return ".srd - Sound (Random)";
             break;
 
         case 0x7E33A16C:
-            return ".spc - ????";
+            return ".spc - Sound Package";
             break;
 
         case 0x4CA26828:
-            return ".bmse - ????";
+            return ".bmse - Sound Motion";
             break;
 
         case 0x7437CCE:
-            return ".base - ????";
+            return ".base - Sound Attributes";
             break;
 
         case 0x12191BA1:
-            return ".epv - ????";
+            return ".epv - Effect Provider";
             break;
 
         case 0x27F3C33D:
@@ -168,23 +168,143 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
 
         case 0x21034C90:
-            return ".arcs - Different Archive Type?";
+            return ".arcs - Archive (Same as ARC)";
             break;
 
         case 0x5A7FEA62:
-            return ".ik - Inverse Kinematics?";
+            return ".ik - Inverse Kinematics Related?";
             break;
 
         case 0x7808EA10:
-            return ".rtex - Different Texture Type?";
+            return ".rtex - Render Target Texture";
             break;
 
         case 0x39C52040:
-            return ".lcm - ????";
+            return ".lcm - Camera List";
             break;
 
         case 0x66B45610:
             return ".fsm - ????";
+            break;
+
+        case 0x2C4666D1:
+            return ".smh - ????";
+            break;
+
+        case 0x6A5CDD23:
+            return ".occ - ????";
+            break;
+
+        case 0x437BCF2:
+            return ".grw - Effect (Grass Wind)";
+            break;
+
+        case 0x2833703:
+            return ".efs - Effect Strip";
+            break;
+
+        case 0x276DE8B7:
+            return ".e2d - Effect (2D)";
+            break;
+
+        case 0x39D71F2:
+            return ".rvt - Sound Related?";
+            break;
+
+        case 0x266E8A91:
+            return ".lku - Link Unit";
+            break;
+
+        case 0x167DBBFF:
+            return ".stq - Sound Stream Request";
+            break;
+
+        case 0x5F36B659:
+            return ".way - AI Waypoint";
+            break;
+
+        case 0x15302EF4:
+            return ".lot - Layout";
+            break;
+
+        case 0x1B520B68:
+            return ".zon - Zone";
+            break;
+
+        case 0x272B80EA:
+            return ".prp - Prop Parameter";
+            break;
+
+        case 0x1ED12F1B:
+            return ".glp - Goal Position";
+            break;
+
+        case 0x5802B3FF:
+            return ".ahc - AH Camera";
+            break;
+
+        case 0x285A13D9:
+            return ".vzo - ????";
+            break;
+
+        case 0x2A4F96A8:
+            return ".rbd - Rigid Body";
+            break;
+
+        case 0x3B5C7FD3:
+            return ".ida - ????";
+            break;
+
+        case 0x296BD0A6:
+            return ".hgm - ????";
+            break;
+
+        case 0x6E45FABB:
+            return ".atk - ????";
+            break;
+
+        case 0x253F147:
+            return ".hit - ????";
+            break;
+
+        case 0x35BDD173:
+            return ".poa - ????";
+            break;
+
+        case 0x14EA8095:
+            return ".cos - ????";
+            break;
+
+        case 0x33046CD5:
+            return ".qcm - ????";
+            break;
+
+        case 0x1AADF7B7:
+            return ".cms - ????";
+            break;
+
+        case 0xA4280D9:
+            return ".shd - ????";
+            break;
+
+        case 0x2F4E7041:
+            return ".sgt - ????";
+            break;
+
+        case 0x671F21DA:
+            return ".stp - Start Position Coordinates";
+            break;
+
+        case 0x54DC440A:
+            return ".msl - ????";
+            break;
+
+        case 0x6A9197ED:
+            return ".sst - Sound Related?";
+            break;
+
+        case 0x46FB08BA:
+            return ".bmt - ????";
             break;
 
         default:

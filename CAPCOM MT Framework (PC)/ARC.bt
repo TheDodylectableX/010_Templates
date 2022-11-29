@@ -3,7 +3,7 @@
 //
 //      File: Capcom MT Framework Engine .ARC Archive Template
 //   Authors: Dodylectable (Making the template / Finding out a few new hashes) - Che (DMC4 non-SE format hashes) - Rick Gibbed (DD / RE5 hashes) - Many others for format hashes
-//   Version: 1.5
+//   Version: 1.6
 //   Purpose: Reverse engineering Capcom games' .ARC archive format that're powered by MT Framework
 //  Category: Archives
 // File Mask: .ARC
@@ -33,7 +33,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
     switch (entry.FormatHash)
     {
         case 0x241F5DEB:
-        case 0x3CAD8076: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) .TEX
+        case 0x3CAD8076: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) HASH
             return ".tex - Texture";
             break;
             
@@ -42,7 +42,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
             
         case 0x76820D81:
-        case 0x139EE51D: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) .LMT
+        case 0x139EE51D: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) HASH
             return ".lmt - Motion List";
             break;
 
@@ -63,7 +63,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
             
         case 0x58A15856:
-        case 0x1041BD9E: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) .MOD
+        case 0x1041BD9E: // DEVIL MAY CRY 4 (NON SPECIAL EDITION) HASH
             return ".mod - Model";
             break;
 
@@ -79,7 +79,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             return ".nav - Navigation Mesh";
             break;
 
-        case 0x3E363245:
+        case 0x3E363245: // ULTIMATE MARVEL VS. CAPCOM 3 HASH
             return ".chn - Chain";
             break;
 
@@ -91,11 +91,11 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             return ".srq - Sound Request";
             break;
 
-        case 0x357EF6D4:
+        case 0x357EF6D4: // ULTIMATE MARVEL VS. CAPCOM 3 HASH
             return ".lrp - ????";
             break;
 
-        case 0x326F732E:
+        case 0x326F732E: // ULTIMATE MARVEL VS. CAPCOM 3 HASH
             return ".cst - ????";
             break;
 
@@ -111,16 +111,16 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             return ".gem - ????";
             break;
 
-        case 0x9A64A8:
-            return ".lmcm - ????";
+        case 0x9A64A8: // ULTIMATE MARVEL VS. CAPCOM 3 HASH
+            return ".lmcm - Maya Camera List (XML Camera Info?)";
             break;
 
-        case 0x724DF879:
-            return ".xsew - Sound Related?";
+        case 0x724DF879: // ULTIMATE MARVEL VS. CAPCOM 3 HASH
+            return ".xsew - Sound Source (OGG Vorbis)";
             break;
 
-        case 0x15D782FB:
-            return ".sbkr - Sound Related?";
+        case 0x15D782FB: // ULTIMATE MARVEL VS. CAPCOM 3 HASH
+            return ".sbkr - Sound Bank";
             break;
 
         case 0x535D969F:
@@ -128,7 +128,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
 
         case 0x2282360D:
-            return ".jex - ????";
+            return ".jex - Joint EX";
             break;
 
         case 0x2D12E086:
@@ -184,7 +184,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
 
         case 0x66B45610:
-            return ".fsm - ????";
+            return ".fsm - AI FSM";
             break;
 
         case 0x2C4666D1:
@@ -251,7 +251,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             return ".rbd - Rigid Body";
             break;
 
-        case 0x3B5C7FD3:
+        case 0x3B5C7FD3: // RESIDENT EVIL 6 HASH
             return ".ida - ????";
             break;
 
@@ -296,7 +296,7 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             break;
 
         case 0x54DC440A:
-            return ".msl - ????";
+            return ".msl - Message Serial";
             break;
 
         case 0x6A9197ED:
@@ -305,6 +305,67 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
 
         case 0x46FB08BA:
             return ".bmt - ????";
+            break;
+
+        case 0x2C2DE8CA:
+        case 0x1EFB1B67: // RESIDENT EVIL 5 HASH
+            return ".adh - Adhesion";
+            break;
+
+        case 0xECD7DF4:
+            return ".scs - Sound Related?";
+            break;
+
+        case 0x315E81F:
+            return ".sds - Sound Related?";
+            break;
+
+        case 0x232E228C:
+            return ".rev - Sound Related?";
+            break;
+
+        case 0x2B40AE8F:
+            return ".equ - Sound Related?";
+            break;
+
+        case 0x30FC745F:
+            return ".smx - Sound Related?";
+            break;
+
+        case 0x49B5A885:
+            return ".ssc - Sound Related?";
+            break;
+
+        case 0x2D462600:
+            return ".gfd - GUI Font";
+            break;
+
+        case 0x22948394:
+            return ".gui - GUI";
+            break;
+
+        case 0x07F768AF:
+            return ".gii - GUI Icon";
+            break;
+
+        case 0x4323D83A:
+            return ".stex - Scene Texture";
+            break;
+
+        case 0xDADAB62:
+            return ".oba - Object Related?";
+            break;
+
+        case 0x2DC54131:
+            return ".cdf - Cloth";
+            break;
+
+        case 0x758B2EB7:
+            return ".cef - Common Effect";
+            break;
+
+        case 0x1BA81D3C:
+            return ".nck - Neck";
             break;
 
         default:

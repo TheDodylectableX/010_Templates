@@ -22,4 +22,4 @@
 **MP_VertexBlock.bt** - Template for KFS (MP1) / KF2 (MP2) model format's vertices blocks
 
 ### UBISOFT: JADE Engine
-**BF_BIG.bt** - Template for the engine's primary archive format that stores game files, Tested and works with Beyond Good and Evil, Prince of Persia: Sands of Time, Warrior Within, The Two Thrones and TMNT (2007) **(ALL PC VERSIONS; Should work with other games and console ports, although untested)**
+**BF_BIG.bt** - Template for the engine's primary archive format that stores game files, Tested and works with Beyond Good and Evil, Prince of Persia: Sands of Time, Warrior Within, The Two Thrones and TMNT (2007) **(ALL PC VERSIONS; I have tested both the PS2 and PSP versions of The Two Thrones and Rival Swords and they work just fine, others games such as the Naruto ones, King Kong or the PSP/Wii versions of The Forgotten Sands are untested)**

@@ -23,7 +23,7 @@ typedef struct // THE HEADER STRUCT
     uint Version <comment="Archive version">;
     uint FileCount <comment="File count">;
     uint FolderCount <comment="I'm actually unsure of this">;
-    FSkip(16); // FSkip(8); char AlwaysFF[8] <comment="Always 8 bytes of FF in this section, useless">; [REPLACE FSKIP 16 WITH 8 IF PLANNING ON USING THIS BUT I DON'T SEE THE POINT]
+    FSkip(16); // [REPLACE FSKIP 16 WITH 8 IF PLANNING ON USING THIS BUT I DON'T SEE THE POINT] FSkip(8); char AlwaysFF[8] <comment="Always 8 bytes of FF in this section, useless">;
     uint UnknownHeaderValueA <comment="Needs more research">;
     FSkip(4); // uint AlwaysOne <comment="For some reason this is always 1 on all archives, Needs more research">;
     uint PermanentlyFixedNumberA <comment="This integer is always 3422552206 for PoP and TMNT, 1895841785 for BGAE, Needs more research">;
@@ -56,7 +56,7 @@ typedef struct // SKIP PADDING GARBAGE AKA ZEROS
     uint FileFlags <comment="File flags maybe? Needs more research">;
     uint UnknownValueD <comment="Unknown Value D">;
     char FileName[64] <comment="File name">;
-    // FSkip(4); char UnknownChecksum[32]<comment="Looks like some sort of checksum or key, Needs more research">; [USE IF RUNNING TEMPLATE ON TMNT 2007 ARCHIVE]
+    // [USE IF RUNNING TEMPLATE ON TMNT 2007 ARCHIVE] FSkip(4); char UnknownChecksum[32]<comment="Looks like some sort of checksum or key, Needs more research">;
 } Files <comment="Archive files">;
 
 typedef struct // MAIN STRUCT

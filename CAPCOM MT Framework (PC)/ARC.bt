@@ -3,7 +3,7 @@
 //
 //      File: Capcom MT Framework Engine .ARC Archive Template
 //   Authors: Dodylectable (Making the template / Finding out a few new hashes) - Che (DMC4 non-SE format hashes) - Rick Gibbed (DD / RE5 hashes) - Many others for format hashes
-//   Version: 1.6
+//   Version: 1.8
 //   Purpose: Reverse engineering Capcom games' .ARC archive format that're powered by MT Framework
 //  Category: Archives
 // File Mask: .ARC
@@ -13,20 +13,20 @@
 
 typedef struct // THE HEADER STRUCT
 {
-    char Magic[4] <comment="Archive magic">;
-    ushort Version <comment="Archive version">;
-    ushort FileCount <comment="File count">;
-} Header <comment="The archive's header">;
+    char Magic[4] <comment="Archive magic, always ARC", name="Archive Magic">;
+    ushort Version <comment="Archive version", name="Archive Version">;
+    ushort FileCount <comment="File count", name="Archive File Count">;
+} Header <comment="The archive's header", name="Archive Header">;
 
 typedef struct // THE FILES STRUCT
 {
-    char FileListing[64] <comment="File listing">;
-    uint FormatHash <comment="Format hash">;
-    uint CompressedFileSize <comment="A file's compressed filesize">;
-    ubyte UncompressedFileSize[3] <comment="A file's uncompressed filesize">;
-    ubyte FileFlags <comment="File flags">;
-    uint FileOffset <comment="File offset">;
-} Files<read=ReadFiles>;
+    char FileListing[64] <comment="File listing, always 64 bytes long", name="File Listing">;
+    uint FormatHash <format=hex, comment="File format extension hash (CRC32)", name="File Format Extension Hash (CRC32)">;
+    uint CompressedFileSize <comment="File's compressed filesize", name="Compressed File Size">;
+    ubyte UncompressedFileSize[3] <comment="File's uncompressed filesize", name="Uncompressed File Size, Probably">;
+    ubyte FileFlags <comment="File flags", name="File Flags">;
+    uint FileOffset <comment="File offset", name="File Offset">;
+} Files<read=ReadFiles, name="Archive File">;
 
 string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL FORMAT EXTENSIONS
 {
@@ -368,6 +368,26 @@ string ReadFiles(Files &entry) // READ HASHES AND RETURN THEM AS THEIR ORIGINAL 
             return ".nck - Neck";
             break;
 
+        case 0x7A098625:
+            return ".cwc - ????";
+            break;
+
+        case 0x1CC22F91:
+            return ".epl - ????";
+            break;
+
+        case 0x1A5444D9:
+            return ".cad - ????";
+            break;
+
+        case 0x65D3AC8E:
+            return ".resmap - ????";
+            break;
+
+        case 0x13CFA2FA:
+            return ".swm - ????";
+            break;
+
         default:
             return "???? - Unknown Format";
             break;
@@ -392,6 +412,6 @@ typedef struct
 if (header.FileCount > 0)
     Files files[header.FileCount] <comment="File entry", optimize=false>;
     Data data;
-} Capcom_ARC <comment="Capcom .ARC Archive">;
+} Capcom_ARC <comment="Capcom .ARC Archive", name="CAPCOM MT Framework [.ARC] Archive">;
 
 Capcom_ARC file;

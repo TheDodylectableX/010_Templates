@@ -1,0 +1,511 @@
+//-------------------------------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: VOID Engine (DEATHLOOP VERSION) .INDEX Header
+//   Authors: Dodylectable [Converting to 010], hax0r and Luigi Auriemma [Initially making the QuickBMS script]
+//   Version: 1.0
+//   Purpose: Reverse engineering .INDEX files of VOID Engine (Modified id Tech 5)
+//  Category: Headers
+// File Mask: master_resources.index
+//  ID Bytes: 05 53 45 52
+//   History: 
+//-------------------------------------------------------------------------------------------------------------
+
+// .resources Archives are compressed with Oodle
+
+typedef struct
+{
+    ubyte INDEXType <comment="5 = Index / 4 = Resources", name="INDEX Type">;
+    char Magic[3] <comment="INDEX' magic", name="Magic">;
+    BigEndian(); // INDEX Size and File Count are stored in Big Endian, for some reason
+    uint INDEXSize <comment="Probably, it's 32 bytes off", name="INDEX Size">;
+    FSkip(0x18);
+    uint FileCount <comment="File count", name="INDEX File Count">;
+    LittleEndian(); // The rest of the INDEX file is Little Endian
+    FSkip(4);
+} Header <comment="INDEX Header", name="INDEX Header">;
+
+typedef struct
+{
+    uint FileTypeLength <name="File Type's Length">;
+    char FileType[FileTypeLength] <name="File Type">;
+    uint FileTypeBLength <name="Uncooked File Listing Length">;
+    char FileTypeB[FileTypeBLength] <name="Uncooked File Listing">;
+    uint FileListingLength <name="Cooked File Listing Length">;
+    char FileListing[FileListingLength] <name="Cooked File Listing">;
+    uint FileOffsetA <comment="Primary file offset", name="Primary File Offset">;
+    uint FileOffsetB <comment="Needs more research", name="Unknown (Secondary File Offset?)">;
+    uint FileSizeA <comment="Primary file size", name="Primary File Size">;
+    uint FileSizeB <comment="Secondary file size, compressed maybe", name="Secondary File Size (Compressed?)">;
+    FSkip(12);
+    ushort ArchiveNumberA <comment="Number of archive this file is in", name="Primary Archive Number">;
+    ushort ArchiveNumberB <comment="Needs more research", name="Unknown (Secondary Archive Number?)">;
+    ushort unkA;
+} Files <read=ReadFiles, comment="INDEX File Listing", name="INDEX File Listing">;
+
+string ReadFiles(Files &entry) // READ ARCHIVE NUMBER AND RETURN WHICH ARCHIVE THE FILE IS IN
+{
+    switch (entry.ArchiveNumberA)
+    {
+        case 0:
+            return "File Inside [rsc_decl_0.resources]";
+            break;
+			
+        case 1:
+            return "File Inside [rsc_gen_0_0.resources]";
+            break;
+			
+        case 2:
+            return "File Inside [rsc_gen_0_1.resources]";
+            break;
+			
+        case 3:
+            return "File Inside [map_menu_0.resources]";
+            break;
+			
+        case 4:
+            return "File Inside [map_antenna_01_p_0.resources]";
+            break;
+			
+        case 5:
+            return "File Inside [map_antenna_02_p_0.resources]";
+            break;
+			
+        case 6:
+            return "File Inside [map_antenna_03_p_0.resources]";
+            break;
+			
+        case 7:
+            return "File Inside [map_antenna_04_p_0.resources]";
+            break;
+			
+        case 8:
+            return "File Inside [map_island_01_p_0.resources]";
+            break;
+			
+        case 9:
+            return "File Inside [map_island_02_p_0.resources]";
+            break;
+			
+        case 10:
+            return "File Inside [map_island_03_p_0.resources]";
+            break;
+			
+        case 11:
+            return "File Inside [map_outro_p_0.resources]";
+            break;
+			
+        case 12:
+            return "File Inside [map_outro_02_0.resources]";
+            break;
+			
+        case 13:
+            return "File Inside [map_tutorial_01_p_0.resources]";
+            break;
+			
+        case 14:
+            return "File Inside [map_tutorial_02_0.resources]";
+            break;
+			
+        case 15:
+            return "File Inside [map_upper_antenna_p_0.resources]";
+            break;
+			
+        case 16:
+            return "File Inside [map_uppercity_01_p_0.resources]";
+            break;
+			
+        case 17:
+            return "File Inside [map_uppercity_02_p_0.resources]";
+            break;
+			
+        case 18:
+            return "File Inside [map_uppercity_03_p_0.resources]";
+            break;
+			
+        case 19:
+            return "File Inside [map_uppercity_04_p_0.resources]";
+            break;
+			
+        case 20:
+            return "File Inside [map_wharf_01_0.resources]";
+            break;
+			
+        case 21:
+            return "File Inside [map_wharf_03_0.resources]";
+            break;
+			
+        case 22:
+            return "File Inside [map_wharf_04_0.resources]";
+            break;
+			
+        case 23:
+            return "File Inside [rsc_images_0_0.resources]";
+            break;
+			
+        case 24:
+            return "File Inside [rsc_images_0_1.resources]";
+            break;
+			
+        case 25:
+            return "File Inside [rsc_images_0_2.resources]";
+            break;
+			
+        case 26:
+            return "File Inside [rsc_images_0_3.resources]";
+            break;
+			
+        case 27:
+            return "File Inside [rsc_images_0_4.resources]";
+            break;
+			
+        case 28:
+            return "File Inside [rsc_images_0_5.resources]";
+            break;
+			
+        case 29:
+            return "File Inside [rsc_images_0_6.resources]";
+            break;
+			
+        case 30:
+            return "File Inside [rsc_images_0_7.resources]";
+            break;
+			
+        case 31:
+            return "File Inside [rsc_images_0_8.resources]";
+            break;
+			
+        case 32:
+            return "File Inside [rsc_images_0_9.resources]";
+            break;
+			
+        case 33:
+            return "File Inside [rsc_images_0_10.resources]";
+            break;
+			
+        case 34:
+            return "File Inside [rsc_images_0_11.resources]";
+            break;
+			
+        case 35:
+            return "File Inside [rsc_images_0_12.resources]";
+            break;
+			
+        case 36:
+            return "File Inside [rsc_images_0_13.resources]";
+            break;
+			
+        case 37:
+            return "File Inside [rsc_images_0_14.resources]";
+            break;
+			
+        case 38:
+            return "File Inside [sfx/rsc_sounds_0_0.resources]";
+            break;
+			
+        case 39:
+            return "File Inside [sfx/rsc_sounds_0_1.resources]";
+            break;
+			
+        case 40:
+            return "File Inside [rsc_anims_0_0.resources]";
+            break;
+			
+        case 41:
+            return "File Inside [rsc_ui_0_0.resources]";
+            break;
+			
+        case 42:
+            return "File Inside [rsc_ui_0_1.resources]";
+            break;
+			
+        case 43:
+            return "File Inside [rsc_ui_0_2.resources]";
+            break;
+			
+        case 44:
+            return "File Inside [rsc_ui_0_3.resources]";
+            break;
+			
+        case 45:
+            return "File Inside [rsc_ui_0_4.resources]";
+            break;
+			
+        case 46:
+            return "File Inside [rsc_ui_0_5.resources]";
+            break;
+			
+        case 47:
+            return "File Inside [rsc_images_1_0.resources]";
+            break;
+			
+        case 48:
+            return "File Inside [rsc_images_1_1.resources]";
+            break;
+			
+        case 49:
+            return "File Inside [rsc_images_1_2.resources]";
+            break;
+			
+        case 50:
+            return "File Inside [rsc_images_1_3.resources]";
+            break;
+			
+        case 51:
+            return "File Inside [rsc_images_1_4.resources]";
+            break;
+			
+        case 52:
+            return "File Inside [rsc_images_1_5.resources]";
+            break;
+			
+        case 53:
+            return "File Inside [rsc_images_1_6.resources]";
+            break;
+			
+        case 54:
+            return "File Inside [rsc_images_1_7.resources]";
+            break;
+			
+        case 55:
+            return "File Inside [rsc_images_1_8.resources]";
+            break;
+			
+        case 56:
+            return "File Inside [sfx/rsc_sounds_1_0.resources]";
+            break;
+			
+        case 57:
+            return "File Inside [rsc_anims_1_0.resources]";
+            break;
+			
+        case 58:
+            return "File Inside [rsc_images_2_0.resources]";
+            break;
+			
+        case 59:
+            return "File Inside [rsc_images_2_1.resources]";
+            break;
+			
+        case 60:
+            return "File Inside [sfx/rsc_sounds_2_0.resources]";
+            break;
+			
+        case 61:
+            return "File Inside [rsc_anims_2_0.resources]";
+            break;
+			
+        case 62:
+            return "File Inside [rsc_images_3_0.resources]";
+            break;
+			
+        case 63:
+            return "File Inside [rsc_images_3_1.resources]";
+            break;
+			
+        case 64:
+            return "File Inside [sfx/rsc_sounds_3_0.resources]";
+            break;
+			
+        case 65:
+            return "File Inside [rsc_anims_3_0.resources]";
+            break;
+			
+        case 66:
+            return "File Inside [rsc_images_4_0.resources]";
+            break;
+			
+        case 67:
+            return "File Inside [sfx/rsc_sounds_4_0.resources]";
+            break;
+			
+        case 68:
+            return "File Inside [rsc_anims_4_0.resources]";
+            break;
+			
+        case 69:
+            return "File Inside [rsc_images_5_0.resources]";
+            break;
+			
+        case 70:
+            return "File Inside [sfx/rsc_sounds_5_0.resources]";
+            break;
+			
+        case 71:
+            return "File Inside [rsc_anims_5_0.resources]";
+            break;
+			
+        case 72:
+            return "File Inside [rsc_images_6_0.resources]";
+            break;
+			
+        case 73:
+            return "File Inside [sfx/rsc_sounds_6_0.resources]";
+            break;
+			
+        case 74:
+            return "File Inside [rsc_anims_6_0.resources]";
+            break;
+			
+        case 75:
+            return "File Inside [rsc_images_7_0.resources]";
+            break;
+			
+        case 76:
+            return "File Inside [sfx/rsc_sounds_7_0.resources]";
+            break;
+			
+        case 77:
+            return "File Inside [rsc_anims_7_0.resources]";
+            break;
+			
+        case 78:
+            return "File Inside [rsc_images_8_0.resources]";
+            break;
+			
+        case 79:
+            return "File Inside [sfx/rsc_sounds_8_0.resources]";
+            break;
+			
+        case 80:
+            return "File Inside [rsc_anims_8_0.resources]";
+            break;
+			
+        case 81:
+            return "File Inside [rsc_images_9_0.resources]";
+            break;
+			
+        case 82:
+            return "File Inside [sfx/rsc_sounds_9_0.resources]";
+            break;
+			
+        case 83:
+            return "File Inside [rsc_anims_9_0.resources]";
+            break;
+			
+        case 84:
+            return "File Inside [rsc_images_10_0.resources]";
+            break;
+			
+        case 85:
+            return "File Inside [sfx/rsc_sounds_10_0.resources]";
+            break;
+			
+        case 86:
+            return "File Inside [rsc_anims_10_0.resources]";
+            break;
+			
+        case 87:
+            return "File Inside [rsc_images_11_0.resources]";
+            break;
+			
+        case 88:
+            return "File Inside [sfx/rsc_sounds_11_0.resources]";
+            break;
+			
+        case 89:
+            return "File Inside [rsc_anims_11_0.resources]";
+            break;
+			
+        case 90:
+            return "File Inside [rsc_images_12_0.resources]";
+            break;
+			
+        case 91:
+            return "File Inside [sfx/rsc_sounds_12_0.resources]";
+            break;
+			
+        case 92:
+            return "File Inside [rsc_anims_12_0.resources]";
+            break;
+			
+        case 93:
+            return "File Inside [rsc_images_13_0.resources]";
+            break;
+			
+        case 94:
+            return "File Inside [sfx/rsc_sounds_13_0.resources]";
+            break;
+			
+        case 95:
+            return "File Inside [rsc_anims_13_0.resources]";
+            break;
+			
+        case 96:
+            return "File Inside [rsc_images_14_0.resources]";
+            break;
+			
+        case 97:
+            return "File Inside [sfx/rsc_sounds_14_0.resources]";
+            break;
+			
+        case 98:
+            return "File Inside [rsc_anims_14_0.resources]";
+            break;
+			
+        case 99:
+            return "File Inside [rsc_images_15_0.resources]";
+            break;
+			
+        case 100:
+            return "File Inside [sfx/rsc_sounds_15_0.resources]";
+            break;
+			
+        case 101:
+            return "File Inside [rsc_anims_15_0.resources]";
+            break;
+			
+        case 102:
+            return "File Inside [eLID_English/rsc_sounds_16_0.resources]";
+            break;
+			
+        case 103:
+            return "File Inside [eLID_French/rsc_sounds_17_0.resources]";
+            break;
+			
+        case 104:
+            return "File Inside [eLID_Italian/rsc_sounds_18_0.resources]";
+            break;
+			
+        case 105:
+            return "File Inside [eLID_German/rsc_sounds_19_0.resources]";
+            break;
+			
+        case 106:
+            return "File Inside [eLID_Spanish/rsc_sounds_20_0.resources]";
+            break;
+			
+        case 107:
+            return "File Inside [eLID_Russian/rsc_sounds_21_0.resources]";
+            break;
+			
+        case 108:
+            return "File Inside [eLID_Polish/rsc_sounds_22_0.resources]";
+            break;
+			
+        case 109:
+            return "File Inside [eLID_MexicanSpanish/rsc_sounds_23_0.resources]";
+            break;
+			
+        case 110:
+            return "File Inside [eLID_BrazilianPortuguese/rsc_sounds_24_0.resources]";
+            break;
+			
+        case 111:
+            return "File Inside [eLID_Japanese/rsc_sounds_26_0.resources]";
+            break;
+
+        default:
+            return "???? - Unknown Resources Archive";
+            break;
+    }
+}
+
+typedef struct
+{
+    Header header;
+if (header.FileCount > 0)
+    Files files[header.FileCount] <comment="INDEX File Listing", optimize=false>;
+} VOIDIndex <comment="VOID Engine .INDEX File", name="VOID Engine .INDEX File">;
+
+VOIDIndex file;

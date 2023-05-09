@@ -3,7 +3,7 @@
 //
 //      File: Ubisoft JADE Engine .BF (BIG) Template
 //   Authors: Dodylectable
-//   Version: 1.0
+//   Version: 1.1
 //   Purpose: Reverse engineering .BF (BIG) files of Ubisoft's JADE Engine
 //  Category: Archives
 // File Mask: .BF
@@ -17,29 +17,31 @@
 // Prince of Persia - Two Thrones (PC) File Start:      0x1C34EC
 // Teenage Mutant Ninja Turtles (PC) File Start:         0x188144
 
+local uint arcVersion;
+
 typedef struct // THE HEADER STRUCT
 {
-    char Magic[4] <comment="Archive magic (ALWAYS BIG)">;
-    uint Version <comment="Archive version">;
-    uint FileCount <comment="File count">;
-    uint FolderCount <comment="I'm actually unsure of this">;
+    char Magic[4] <comment="Archive magic, always BIG", name="Archive Magic">;
+    uint Version <comment="Archive version", name="Archive Version">;
+    uint FileCount <comment="File count", name="Archive File Count">; arcVersion = Version;
+    uint FolderCount <comment="I'm actually unsure of this", name="Archive Folder Count (Maybe, No idea)">;
     FSkip(16); // [REPLACE FSKIP 16 WITH 8 IF PLANNING ON USING THIS BUT I DON'T SEE THE POINT] FSkip(8); char AlwaysFF[8] <comment="Always 8 bytes of FF in this section, useless">;
-    uint UnknownHeaderValueA <comment="Needs more research">;
+    uint UnknownHeaderValueA <comment="Needs more research", name="Unknown Header Value A">;
     FSkip(4); // uint AlwaysOne <comment="For some reason this is always 1 on all archives, Needs more research">;
-    uint PermanentlyFixedNumberA <comment="This integer is always 3422552206 for PoP and TMNT, 1895841785 for BGAE, Needs more research">;
+    uint PermanentlyFixedNumberA <comment="This integer is always 3422552206 for PoP and TMNT, 1895841785 for BGAE, Needs more research", name="Permanently Fixed Number A">;
     FSkip(4); // uint FileCountAgain <comment="File count again">;
-    uint UnknownHeaderValueD <comment="Needs more research">;
-    uint PermanentlyFixedNumberB <comment="This integer is always 68 regardless of game, Needs more research">;
-    uint PermanentlyFixedNumberC <comment="This integer is always 4294967295 regardless of game, Needs more research">;
+    uint UnknownHeaderValueB <comment="Needs more research", name="Unknown Header Value B">;
+    uint PermanentlyFixedNumberB <comment="This integer is always 68 regardless of game, Needs more research", name="Permanently Fixed Number B">;
+    uint PermanentlyFixedNumberC <comment="This integer is always 4294967295 regardless of game, Needs more research", name="Permanently Fixed Number C">;
     FSkip(4); // uint AlwaysZero <comment="AlwaysOne's contrary sibling, Needs more research">;
-    uint UnknownHeaderValueB <comment="Needs more research">;
-} Header <comment="Archive header">;
+    uint UnknownHeaderValueC <comment="Needs more research", name="Unknown Header Value C">;
+} Header <comment="Archive header", name="Archive Header">;
 
 typedef struct // THE FILE OFFSETS STRUCT
 {
-    uint FileOffset <comment="File offset">;
+    uint FileOffset <comment="File offset", name="File Offset">;
     FSkip(4); // SKIP GARBAGE OUT OF RANGE INTEGERS
-} FileOffsets <comment="File offsets">;
+} FileOffsets <comment="File offsets", name="File Offset">;
 
 typedef struct // SKIP PADDING GARBAGE AKA ZEROS
 {
@@ -50,22 +52,26 @@ typedef struct // SKIP PADDING GARBAGE AKA ZEROS
     FSkip(1);
         zero = ReadByte();
 } // NOW, THE FILES STRUCT
-    uint FileSize <comment="File size">;
-    uint UnknownValueA <comment="Unknown Value A">;
-    uint UnknownValueB <comment="Unknown Value B">;
-    uint FileFlags <comment="File flags maybe? Needs more research">;
-    uint UnknownValueD <comment="Unknown Value D">;
-    char FileName[64] <comment="File name">;
-    // [USE IF RUNNING TEMPLATE ON TMNT 2007 ARCHIVE] FSkip(4); char UnknownChecksum[32]<comment="Looks like some sort of checksum or key, Needs more research">;
-} Files <comment="Archive files">;
+    uint FileSize <comment="File size", name="File Size">;
+    uint UnknownValueA <comment="Needs more research", name="Unknown Value A">;
+    uint UnknownValueB <comment="Needs more research", name="Unknown Value B">;
+    uint FileFlags <comment="File flags maybe? Needs more research", name="File Flags?">;
+    uint UnknownValueC <comment="Needs more research", name="Unknown Value C">;
+    char FileName[64] <comment="File listing, always 64 bytes long", name="File Listing">;
+if (arcVersion == 42)
+{
+  FSkip(4); 
+  char UnknownChecksum[32]<comment="Looks like some sort of checksum or key, Needs more research", name="File Checksum?">;
+}
+} Files <comment="Archive files", name="Archive Files">;
 
 typedef struct // MAIN STRUCT
 {
     Header header;
 if (header.FileCount > 0)
-    FileOffsets fileoffsets[header.FileCount] <comment="File offsets", optimize=false>;
+    FileOffsets fileoffsets[header.FileCount] <comment="File offsets", optimize=false, name="File Offsets">;
 if (header.FileCount > 0)
-    Files files[header.FileCount] <comment="File entry", optimize=false>;
+    Files files[header.FileCount] <comment="File listing", optimize=false, name="File Listing">;
 } Ubisoft_BF;
 
-Ubisoft_BF file <comment="Ubisoft .BF (BIG) Archive">;
+Ubisoft_BF file <comment="Ubisoft .BF (BIG) Archive", name="Ubisoft [.BF] (BIG) Archive">;

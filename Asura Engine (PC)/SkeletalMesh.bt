@@ -1,0 +1,51 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: SkeletalMesh.bt
+//   Authors: Dodylectable, RED_EYE
+//   Version: 1.0
+//   Purpose: 
+//  Category: Models
+// File Mask: *.model
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+#include "../Common.bt"
+
+struct
+{
+    uint MeshCount;
+    uint VertexCount;
+    uint FaceCount;
+    uint TriangleCount;
+    uint UnknownCount;
+} Header <read=Str("(Mesh Count: %d | Vertex Count: %d | Face Count: %d)", this.MeshCount, this.VertexCount, this.FaceCount)>;
+
+struct
+{
+    uint SubmeshHash <format=hex>;
+    uint UnknownValue_A;
+    uint SubmeshFaceCount;
+    uint UnknownValue_B;
+    uint UnknownValue_C <comment="A flag of sorts?">;
+    uint UnknownValue_D;
+} SubmeshMeshHeader [Header.MeshCount] <name="Submesh Header", read=Str("(Submesh Hash: 0x%X | Submesh Face Count: %d)", this.SubmeshHash, this.SubmeshFaceCount), optimize=false>;
+
+VEC3F MeshScale;
+VEC3F MeshOffset <comment="Must be multiplied by 2">;
+
+struct
+{
+    VEC3US Position;
+    short MinusOne;
+    VEC2HF UV_0;
+    VEC3US Normals;
+    ubyte UnknownValues[4];
+    VEC3US Tangents <comment="Maybe? I have no idea">;
+    VEC2HF UV_1;
+    VEC4UB Weights; // SE4 & ZA4 have 8 weights
+    VEC4UB Indices; // SE4 & ZA4 have 8 indices
+} Vertices [Header.VertexCount] <optimize=false>;
+
+VEC3US Faces [Header.TriangleCount] <optimize=false>;

@@ -1,0 +1,41 @@
+//---------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: ARC.bt
+//   Authors: Dodylectable, ikskoks
+//   Version: 1.0
+//   Purpose: Reverse engineering TIH's .ARC archive format
+//  Category: Archives
+// File Mask: *.ARC
+//  ID Bytes: 
+//   History: 
+//---------------------------------------------------------
+
+// Xbox 360 .ARC has a difference where the Footer is LE and everything else afterwards is BE
+// Then another integer in the file listing
+
+typedef struct
+{
+    uint FooterOffset <comment="The offset of the footer", name="Archive Footer's Offset">;
+    FSeek(FooterOffset);
+    uint FileCount <comment="The number of files in the archive", name="Archive File Count">;
+} Footer <read=Str("%d Files", this.FileCount)>;
+
+typedef struct
+{
+    uint FileIndex <comment="The index of the file", name="File Index">;
+    uint FileOffset <comment="The offset of the file", name="File Offset">;
+    uint FileSize <comment="The file's size", name="File Size">;
+    string FileListing <comment="File listing", name="File Listing">;
+    uint UnknownIntegerA <comment="Unknown, needs more research", name="Unknown Integer A">;
+    uint UnknownIntegerB <comment="Unknown, needs more research", name="Unknown Integer B">;
+} Files <name="Archive Files", read=Str("(File: %s | File Index: %d | File Offset: %d | File Size: %d bytes)", this.FileListing, this.FileIndex, this.FileOffset, this.FileSize)>;
+
+typedef struct
+{
+    Footer footer <comment="Archive footer", name="Archive Footer">;
+if (footer.FileCount > 0)
+    Files files[footer.FileCount] <comment="File entry", optimize=false, name="Archive Files">;
+} IncredibleHulkARC <comment="The Incredible Hulk .ARC Format", name="The Incredible Hulk .ARC Archive">;
+
+IncredibleHulkARC FILE;

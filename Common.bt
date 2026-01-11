@@ -1,0 +1,233 @@
+//------------------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: Common.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Simplifying tasks on templates by adding known structures to call from here
+//  Category: Reverse Engineering
+// File Mask: *
+//  ID Bytes: bruh
+//   History: 
+//------------------------------------------------------------------------------------------------
+
+// <name="", comment="", read="", format=hex>;
+
+//------------------------------------------------------------------------------------------------
+
+//------------
+// DATA TYPES
+//------------
+
+// Signed 24-bit integer
+typedef struct {
+    uint value;
+} int24 <size=3, read=ReadInt24>;
+
+int ReadInt24() {
+    uint b1 = ReadByte();
+    uint b2 = ReadByte();
+    uint b3 = ReadByte();
+    int result = (b3 << 16) | (b2 << 8) | b1;
+    if (result & 0x800000)
+        result |= 0xFF000000; // Sign extend
+    return result;
+}
+
+// Unsigned 24-bit integer
+typedef struct {
+    uint value;
+} uint24 <size=3, read=ReadUInt24>;
+
+uint ReadUInt24() {
+    uint b1 = ReadByte();
+    uint b2 = ReadByte();
+    uint b3 = ReadByte();
+    return (b3 << 16) | (b2 << 8) | b1;
+}
+
+//------------------------------------------------------------------------------------------------
+
+//------------
+// TEXT STUFF
+//------------
+
+// An integer length-based string
+typedef struct
+{
+    uint StringLength;
+    char ActualString[StringLength];
+} String <read=this.ActualString>;
+
+// A short length-based string
+typedef struct
+{
+    ushort StringLength;
+    char ActualString[StringLength];
+} StringV2 <read=this.ActualString>;
+
+//------------------------------------------------------------------------------------------------
+
+//-------------
+// CONVERSIONS
+//-------------
+
+// Convert unsigned byte to float
+string UByteToFloat(ubyte f)
+{
+    string Str;
+    SPrintf(Str, "%lg", f / 255.0);
+    return Str;
+};
+
+// Convert unsigned short to float
+string UShortToFloat(ushort f)
+{
+    string Str;
+    SPrintf(Str, "%lg", f / 65535.0);
+    return Str;
+};
+
+// Convert unsigned integer to float
+string UIntToFloat(ushort f)
+{
+    string Str;
+    SPrintf(Str, "%lg", f / 4294967295.0);
+    return Str;
+};
+
+//------------------------------------------------------------------------------------------------
+
+//-----------------------------
+// VECTORS - 2D/3D based stuff
+//-----------------------------
+
+//--------
+// FLOATS
+//--------
+
+// A vector of two full-precision floating points
+typedef struct
+{
+    float X, Y;
+} VEC2F <read=Str("(X: %f | Y: %f)", this.X, this.Y)>;
+
+// A vector of three full-precision floating points
+typedef struct
+{
+    float X, Y, Z;
+} VEC3F <read=Str("(X: %f | Y: %f | Z: %f)", this.X, this.Y, this.Z)>;
+
+// A vector of four full-precision floating points
+typedef struct
+{
+    float X, Y, Z, W;
+} VEC4F <read=Str("(X: %f | Y: %f | Z: %f | W: %f)", this.X, this.Y, this.Z, this.W)>;
+
+//-------------
+// HALF-FLOATS
+//-------------
+
+// A vector of two half-precision floating points
+typedef struct
+{
+    hfloat X, Y;
+} VEC2HF <read=Str("(X: %f | Y: %f)", this.X, this.Y)>;
+
+// A vector of three half-precision floating points
+typedef struct
+{
+    hfloat X, Y, Z;
+} VEC3HF <read=Str("(X: %f | Y: %f | Z: %f)", this.X, this.Y, this.Z)>;
+
+//----------------------------------------------------------------------
+
+//----------
+// INTEGERS
+//----------
+
+// A vector of two signed integers
+typedef struct
+{
+    int X, Y;
+} VEC2SI <read=Str("(X: %d | Y: %d)", this.X, this.Y)>;
+
+// A vector of two unsigned integers
+typedef struct
+{
+    uint X, Y;
+} VEC2UI <read=Str("(X: %d | Y: %d)", this.X, this.Y)>;
+
+// A vector of three signed integers
+typedef struct
+{
+    int X, Y, Z;
+} VEC3SI <read=Str("(X: %d | Y: %d | Z: %d)", this.X, this.Y, this.Z)>;
+
+// A vector of three unsigned integers
+typedef struct
+{
+    uint X, Y, Z;
+} VEC3UI <read=Str("(X: %d | Y: %d | Z: %d)", this.X, this.Y, this.Z)>;
+
+//----------------------------------------------------------------------
+
+//--------
+// SHORTS
+//--------
+
+// A vector of two signed shorts
+typedef struct
+{
+    short X, Y;
+} VEC2SS <read=Str("(X: %d | Y: %d)", this.X, this.Y)>;
+
+// A vector of two unsigned shorts
+typedef struct
+{
+    ushort X, Y;
+} VEC2US <read=Str("(X: %d | Y: %d)", this.X, this.Y)>;
+
+// A vector of three signed shorts
+typedef struct
+{
+    short X, Y, Z;
+} VEC3SS <read=Str("(X: %d | Y: %d | Z: %d)", this.X, this.Y, this.Z)>;
+
+// A vector of three unsigned shorts
+typedef struct
+{
+    ushort X, Y, Z;
+} VEC3US <read=Str("(X: %d | Y: %d | Z: %d)", this.X, this.Y, this.Z)>;
+
+//----------------------------------------------------------------------
+
+//-------
+// BYTES
+//-------
+
+// A vector of three signed bytes
+typedef struct
+{
+    byte X, Y, Z;
+} VEC3SB <read=Str("(X: %d | Y: %d | Z: %d)", this.X, this.Y, this.Z)>;
+
+// A vector of three unsigned bytes
+typedef struct
+{
+    ubyte X, Y, Z;
+} VEC3UB <read=Str("(X: %d | Y: %d | Z: %d)", this.X, this.Y, this.Z)>;
+
+// A vector of four signed bytes
+typedef struct
+{
+    byte X, Y, Z, W;
+} VEC4SB <read=Str("(X: %d | Y: %d | Z: %d | W: %d)", this.X, this.Y, this.Z, this.W)>;
+
+// A vector of four unsigned bytes
+typedef struct
+{
+    ubyte X, Y, Z, W;
+} VEC4UB <read=Str("(X: %d | Y: %d | Z: %d | W: %d)", this.X, this.Y, this.Z, this.W)>;
+
+//------------------------------------------------------------------------------------------------

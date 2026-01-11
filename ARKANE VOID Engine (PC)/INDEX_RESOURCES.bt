@@ -1,51 +1,52 @@
-//-------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
-//      File: VOID Engine (DEATHLOOP VERSION) .INDEX Header
-//   Authors: Dodylectable [Converting to 010], hax0r and Luigi Auriemma [Initially making the QuickBMS script]
+//      File: INDEX_RESOURCES.bt
+//   Authors: Dodylectable
 //   Version: 1.0
-//   Purpose: Reverse engineering .INDEX files of VOID Engine (Modified id Tech 5)
-//  Category: Headers
+//   Purpose: Reverse engineering DEATHLOOP's master_resources.index file list of all game files
+//  Category: Archives / File Lists
 // File Mask: master_resources.index
 //  ID Bytes: 05 53 45 52
 //   History: 
-//-------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
 
 // .resources Archives are compressed with Oodle
+// INDEX Size and File Count are stored in BE, the rest of the file is LE
+// Archive Number corresponds to the order of archives in "master.index" file
+
+#include "../Common.bt"
 
 typedef struct
 {
-    ubyte INDEXType <comment="5 = Index / 4 = Resources", name="INDEX Type">;
-    char Magic[3] <comment="INDEX' magic", name="Magic">;
-    BigEndian(); // INDEX Size and File Count are stored in Big Endian, for some reason
-    uint INDEXSize <comment="Probably, it's 32 bytes off", name="INDEX Size">;
-    FSkip(0x18);
+    BigEndian();
+    ubyte INDEXType <name="INDEX Type", comment="4 = Index / 5 = Resources">;
+    char Magic[3] <name="Magic", comment="Always SER">;
+    uint INDEXSize <name="INDEX Size", comment="Size of the INDEX file minus 32 bytes">;
+    FSkip(24);       // Reserved
     uint FileCount <comment="File count", name="INDEX File Count">;
     LittleEndian(); // The rest of the INDEX file is Little Endian
-    FSkip(4);
-} Header <comment="INDEX Header", name="INDEX Header">;
+    FSkip(4);      // Reserved
+} Header <name="Header", comment="The header of this index", read=Str("INDEX Type: %d | INDEX Magic: %s | INDEX Size: %d | File Count: %d Files", this.INDEXType, this.Magic, this.INDEXSize, this.FileCount)>;
 
 typedef struct
 {
-    uint FileTypeLength <name="File Type's Length">;
-    char FileType[FileTypeLength] <name="File Type">;
-    uint FileTypeBLength <name="Uncooked File Listing Length">;
-    char FileTypeB[FileTypeBLength] <name="Uncooked File Listing">;
-    uint FileListingLength <name="Cooked File Listing Length">;
-    char FileListing[FileListingLength] <name="Cooked File Listing">;
-    uint FileOffsetA <comment="Primary file offset", name="Primary File Offset">;
-    uint FileOffsetB <comment="Needs more research", name="Unknown (Secondary File Offset?)">;
-    uint FileSizeA <comment="Primary file size", name="Primary File Size">;
-    uint FileSizeB <comment="Secondary file size, compressed maybe", name="Secondary File Size (Compressed?)">;
-    FSkip(12);
-    ushort ArchiveNumberA <comment="Number of archive this file is in", name="Primary Archive Number">;
-    ushort ArchiveNumberB <comment="Needs more research", name="Unknown (Secondary Archive Number?)">;
-    ushort unkA;
+    String FileType <name="File Type", comment="What type of file this is">;
+    String FileListingUncooked <name="File Listing (Uncooked)", comment="Uncooked file listing, Referenced in DECLs and the files themselves">;
+    String FileListingCooked <name="File Listing (Cooked)", comment="Cooked file listing, the file's actual path">;
+    uint FileOffset <name="File Offset", comment="Where the file is located">;
+    uint UnkA <comment="No idea what this is">;
+    uint FileSizeUncompressed <name="File Size (Uncompressed)", comment="Uncompressed">;
+    uint FileSizeCompressed <name="File Size (Compressed)", comment="Compressed">;
+    FSkip(12); // Reserved
+    ushort ArchiveNumber <name="Archive Number", comment="The number of the archive this file is stored in, corresponds to master.index' archive ordering">;
+    ushort UnkB <comment="No idea what this is">;
+    ushort UnkC <comment="No idea what this is">;
 } Files <read=ReadFiles, comment="INDEX File Listing", name="INDEX File Listing">;
 
 string ReadFiles(Files &entry) // READ ARCHIVE NUMBER AND RETURN WHICH ARCHIVE THE FILE IS IN
 {
-    switch (entry.ArchiveNumberA)
+    switch (entry.ArchiveNumber)
     {
         case 0:
             return "File Inside [rsc_decl_0.resources]";

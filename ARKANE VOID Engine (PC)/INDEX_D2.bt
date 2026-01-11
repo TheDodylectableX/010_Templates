@@ -1,0 +1,51 @@
+//----------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: INDEX_D2.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering Dishonored 2's index file list format of all game files
+//  Category: Archives / File Lists
+// File Mask: *.index
+//  ID Bytes: 05 53 45 52
+//   History: 
+//----------------------------------------------------------------------------------------
+
+#include "../Common.bt"
+
+typedef struct
+{
+    BigEndian();       // Header data is Big Endian
+    ubyte INDEXType <name="INDEX Type", comment="4 = Index / 5 = Resources">;
+    char Magic[3] <name="Magic", comment="Always SER">;
+    uint INDEXSize <name="INDEX Size", comment="Size of the INDEX file minus 32 bytes">;
+    FSkip(24);       // Reserved
+    uint FileCount <comment="File count", name="INDEX File Count">;
+    LittleEndian(); // The rest of the INDEX file is Little Endian
+    FSkip(4);      // Reserved
+} Header <name="Header", comment="The header of this index", read=Str("INDEX Type: %d | INDEX Magic: %s | INDEX Size: %d | File Count: %d Files", this.INDEXType, this.Magic, this.INDEXSize, this.FileCount)>;
+
+typedef struct
+{
+    String FileType <name="File Type", comment="What type of file this is">;
+    String FileListingUncooked <name="File Listing (Uncooked)", comment="Uncooked file listing, Referenced in DECLs and the files themselves">;
+    String FileListingCooked <name="File Listing (Cooked)", comment="Cooked file listing, the file's actual path">;
+    BigEndian(); // File metadata is Big Endian
+    FSkip(4);   // Reserved
+    uint FileOffset <name="Primary File Offset", comment="Where the file is located">;
+    uint FileSizeUncompressed <name="File Size (Uncompressed)", comment="Uncompressed">;
+    uint FileSizeCompressed <name="File Size (Compressed)", comment="Compressed">;
+    FSkip(4); // Reserved
+    uint PrimaryFileFlags <name="File Flags", comment="File Flags">;
+    ushort SecondaryFileFlags[3];
+    LittleEndian();
+} Files <read=this.FileListingUncooked.ActualString, comment="INDEX File Listing", name="INDEX File Listing">;
+
+typedef struct
+{
+    Header header;
+if (header.FileCount > 0)
+    Files files[header.FileCount] <comment="INDEX File Listing", optimize=false>;
+} VOIDIndex <comment="VOID Engine .INDEX File", name="VOID Engine .INDEX File">;
+
+VOIDIndex file;

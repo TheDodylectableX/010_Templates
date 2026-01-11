@@ -1,0 +1,41 @@
+//------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: CSF_PAK.bt
+//   Authors: Dodylectable, wattostudios
+//   Version: 1.0
+//   Purpose: Reverse engineering .PAK archives of Commandos: Strike Force
+//  Category: Archives
+// File Mask: *.PAK
+//  ID Bytes: 50 41 4B 41/ 50 41 4B 43
+//   History: 
+//------------------------------------------------------------------------
+
+// PAKA archives are uncompressed, PAKC archives are ZLib compressed
+// If the archive version is 5 then you need to subtract 13 bytes from file offsets
+
+typedef struct
+{
+    char Magic[4] <name="Magic", comment="Should be PAKA or PAKC">;
+    uint Version <name="Version", comment="Either v4 or v5">;
+    uint Unk_Header <name="Unknown Header Value", comment="No idea what this is">;
+    uint FileCount <name="File Count", comment="The amount of files in the archive">;
+} Header <name="Header", comment="The header of the file", read=Str("(%s Archive | Version %d | %d Files)", this.Magic, this.Version, this.FileCount)>;
+
+typedef struct
+{
+    string FileListing <name="File Listing", comment="File Listing">;
+    uint FileOffset <name="File Offset", comment="Relative to data start, basically after the file listing">;
+    uint FileSize <name="File Size", comment="File Size">;
+    uint Unk_File <name="Unknown File Value", comment="No idea what this is">;
+    uint Hash <name="File Type Hash", comment="A hash for the file's type", format=hex>;
+} Files <read=Str("(File: %s | %d bytes | Hash: %d)", this.FileListing, this.FileSize, this.Hash)>;
+
+typedef struct
+{
+    Header header;
+if (header.FileCount > 0)
+    Files files[header.FileCount] <name="Files", comment="File entry", optimize=false>;
+} CSF_PAK <name="Commandos: Strike Force .PAK Archive">;
+
+CSF_PAK file;

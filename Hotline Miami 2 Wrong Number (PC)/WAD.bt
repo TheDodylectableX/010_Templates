@@ -1,0 +1,74 @@
+//----------------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: WAD.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering Hotline Miami and Hotline Miami 2: Wrong Number's WAD archives
+//  Category: Archives
+// File Mask: *.wad
+//  ID Bytes: 41 47 41 52
+//   History: 
+//----------------------------------------------------------------------------------------------
+
+// HM1: Offsets are stored in the first variable in the header then
+//      Add File Starting Offset value on top of File Offset to get the actual offset
+// HM2: Offsets begin right after the Folder Content structure's end
+
+#include "../Common.bt"
+
+// By default HM2's structure is set to work, If you want to use this on HM1 WADs you have to comment that structure out
+// Then uncomment the HM1 structure, that's until I can find a way to dynamically detect it.
+
+// Hotline Miami WAD Structure
+/*
+struct
+{
+    uint FileStartingOffset <name="File Starting Offset", comment="Add this value on top of File Offset to get the actual offset">;
+    uint FileCount <name="File Count", comment="The amount of files in this archive">;
+} Header <read=Str("(Hotline Miami Archive | %d Files)", this.FileCount)>;
+
+struct
+{
+    String FileName <name="File Name", comment="The name of the file">;
+    uint FileSize <name="File Size", comment="The size of the file">;
+    uint FileOffset <name="File Offset", comment="The location of the file in this archive">;
+} File[Header.FileCount] <read=Str("(File: %s | Size: %d | Offset: %d)", this.FileName.ActualString, this.FileSize, this.FileOffset), optimize=false>;
+*/
+
+// Hotline Miami 2: Wrong Number WAD Structure
+struct
+{
+    char Magic[4] <comment="The magic of the archive, Always AGAR">;
+    uint Version;
+    uint Revision;
+    FSkip(4); // Reserved
+    uint FileCount <name="File Count", comment="The amount of files in this archive">;
+} Header <read=Str("(Archive Type: %s | Version %d.%d | %d Files)", this.Magic, this.Version, this.Revision, this.FileCount)>;
+
+struct
+{
+    String FileName <name="File Name", comment="The name of the file">;
+    uint64 FileSize <name="File Size", comment="The size of the file">;
+    uint64 FileOffset <name="File Offset", comment="The location of the file in this archive">;
+} File[Header.FileCount] <read=Str("(File: %s | Size: %d | Offset: %d)", this.FileName.ActualString, this.FileSize, this.FileOffset), optimize=false>;
+
+uint64 AllFolderCount <name="All Folder Count", comment="The amount of all folders in this archive, subtract by 1 to get the actual count">;
+uint MainFolderCount <name="Main Folder Count", comment="The amount of the main folders in this archive">;
+
+struct
+{
+    String FolderName <name="Folder Name", comment="The name of the folder">;
+    ubyte unk; // String terminator? Flag?
+} Folder[MainFolderCount] <read=Str("(Folder: %s)", this.FolderName.ActualString), optimize=false>;
+
+struct
+{
+    String Folder;
+    uint FolderFileCount <name="Folder File Count", comment="The amount of files in this folder">;
+    local uint i <hidden=true>;
+    for (i = 0; i < FolderFileCount; i++) {
+        String File;
+        ubyte unk <hidden=true>; // String terminator? Flag?
+        }
+} FolderContent[AllFolderCount-1] <name="Folder Content", read=Str("(Folder: %s | %d Files)", this.Folder.ActualString, this.FolderFileCount), optimize=false>;

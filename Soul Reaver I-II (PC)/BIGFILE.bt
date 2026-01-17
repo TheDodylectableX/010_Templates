@@ -1,0 +1,44 @@
+//------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: BIGFILE.bt
+//   Authors: Dodylectable, watto
+//   Version: 1.0
+//   Purpose: Reverse engineering Legacy of Kain: Soul Reaver 1 and 2's BIGFILE.DAT archives
+//  Category: Archives
+// File Mask: BIGFILE.DAT
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------
+
+// Switch game types between SR1 and SR2 to parse formats properly!
+const string Game <hidden=true> = "SR1";
+
+#include "../Common.bt"
+
+uint FileCount;
+
+if (Game == "SR1")
+{
+    struct
+    {
+        uint FileHash <comment="CRC32", format=hex>;
+        uint FileSize;
+        uint FileOffset;
+        char FileType[4];
+    } FileListing[FileCount] <read=Str("File Hash: %u | File Size: %d | File Offset: %d | File Type: %s", this.FileHash, this.FileSize, this.FileOffset, this.FileType), optimize=false>;
+}
+
+if (Game == "SR2")
+{
+    struct
+    {
+        uint FileHash <comment="CRC32", format=hex>;
+    } Hashes[FileCount] <read=FileHash, optimize=false>;
+
+    struct
+    {
+        uint FileSize <name="File Size">;
+        uint64 FileOffset <name="File Offset">;
+    } FileListing[FileCount] <read=Str("File Size: %d | File Offset: %d", this.FileSize, this.FileOffset), optimize=false>;
+}

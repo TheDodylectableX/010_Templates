@@ -11,8 +11,8 @@
 //   History: 
 //------------------------------------------------------------------------
 
-// HAND AND HEAD MODELS HAVE SKELETON DATA
-// LARA_HEAD.TRM TR4 OFFSET 64 SKELETON START ENDS AT 00 2C 52 42
+// Switch the type from Default to Head if you want to parse a head model!
+const string Type <hidden=true> = "Default";
 
 #include "../Common.bt"
 
@@ -74,34 +74,38 @@ struct
     FSkip(1);
         zero = ReadByte();
 }
+
+if (Type == "Head")
+{
     
     uint BoneCount <name="Bone Count">;
 
-if (BoneCount > 0) 
-{
-    // A 3x4 matrix or 12-float tuple for each bone
-    Matrices matrices[BoneCount] <optimize=false>;
-
-    uint animationRelatedCountA;
-    // A pair of uints for each count
-    struct {
-        uint animationRelatedValue[2];
-    } animationRelatedValues[animationRelatedCountA];
-
-    uint animationFrameCount;
-    // Frame numbers (assuming uint based on the read_uint_tuple call)
-    uint animationFrames[animationFrameCount] <comment="Frame numbers?">;
-
-    ushort animationRelatedB;
-    ushort animationRelatedC; // Unused in the logic, but still present in stream
-
-    // This section creates a large array based on the product 
-    // of unknown3 (frames) and unknown4
-    if (animationFrameCount * animationRelatedB > 0)
+    if (BoneCount > 0) 
     {
+        // A 3x4 matrix or 12-float tuple for each bone
+        Matrices matrices[BoneCount] <optimize=false>;
+
+        uint animationRelatedCountA;
+        // A pair of uints for each count
         struct {
-            float matrix[12];
-        } animationMatrix[animationFrameCount * animationRelatedB];
+            uint animationRelatedValue[2];
+        } animationRelatedValues[animationRelatedCountA];
+
+        uint animationFrameCount;
+        // Frame numbers (assuming uint based on the read_uint_tuple call)
+        uint animationFrames[animationFrameCount] <comment="Frame numbers?">;
+
+        ushort animationRelatedB;
+        ushort animationRelatedC; // Unused in the logic, but still present in stream
+
+        // This section creates a large array based on the product 
+        // of unknown3 (frames) and unknown4
+        if (animationFrameCount * animationRelatedB > 0)
+        {
+            struct {
+                float matrix[12];
+            } animationMatrix[animationFrameCount * animationRelatedB];
+        }
     }
 }
 

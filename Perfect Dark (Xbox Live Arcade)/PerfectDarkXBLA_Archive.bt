@@ -1,0 +1,86 @@
+//--------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: PerfectDarkXBLA_Archive.bt
+//   Authors: Dodylectable, neptuwunium, tjoener, KholdFuzion
+//   Version: 1.0
+//   Purpose: Reverse engineering 4J Studios' remaster of Perfect Dark's archive formats
+//  Category: Models
+// File Mask: "PackedSegFile" & "Textures.raw"
+//  ID Bytes: 
+//   History: 
+//--------------------------------------------------------------------------------------
+// The X360 textures line up exactly with the N64 counterparts up until the 3502th texture, After that the rest is new additions (2245 textures)
+// The archives are compressed in LZX algorithm
+
+// Switch between Seg and Tex to parse accordingly!
+const string Type <hidden=true> = "Tex";
+
+typedef enum <uint> {
+    DXT1 = 82,
+    DXT3 = 83,
+    DXT5 = 84,
+    ARGB = 134
+} TEXTURE_FORMAT;
+
+BigEndian();
+uint fileCount;
+
+if (Type == "Seg")
+{
+    struct Segment {
+        int offset;     // Absolute
+        int size;
+        int sizeOnDisk; // 0 = Uncompressed
+        int parentID;   // It will refer to another asset if there is by the order of file listing, Otherwise it'll be -1 which is none
+    };
+
+    Segment segments[fileCount] <read=Str("File Offset: %d | File Size: %d | File Size On Disk: %d | File Parent ID: %d", this.offset, this.size, this.sizeOnDisk, this.parentID), optimize=false>;
+};
+
+if (Type == "Tex")
+{
+    struct TexSegment {
+        int offset;       // Relative (Starts right after the last entry in TexSegment2)
+        int imageWidth;   // X360
+        int imageHeight;  // X360
+        int imageWidth2;  // N64
+        int imageHeight2; // N64
+        int size;
+        int sizeOnDisk;   // 0 = Uncompressed
+        int parentID;     // It will refer to another asset if there is by the order of file listing, Otherwise it'll be -1 which is none
+        int unkA;         // Either 1 or 0
+        int unkB;         // Always 50
+        int padB;         // Or flag
+        int padC;         // Or flag
+        int unkC;
+        };
+
+    struct TexSegment2 {
+        uint v1;
+        uint v2;
+        uint v3;
+        uint v4;
+        uint v5;
+        ushort v6a;
+        ushort v6b;
+        ushort v7a;
+        ushort v7b;
+        ushort v8a;
+        ushort v8b;
+        TEXTURE_FORMAT v9;
+        uint v10;
+        uint v11;
+        uint v12;
+        uint v13;
+        };
+        
+    // First 7 variables are constant
+    // 3 / 1, FFs are all consistent
+    // If F is 82 then H and I will be 3344, 512
+    // If it's 134 then 3092, 320
+    // J isn't a constant
+
+    TexSegment segments[fileCount]   <read=Str("File Offset: %d | File Size: %d | File Size On Disk: %d | Texture Dimensions: %dx%d | File Parent ID: %d", this.offset, this.size, this.sizeOnDisk, this.imageWidth, this.imageHeight, this.parentID), optimize=false>;
+    TexSegment2 segments2[fileCount] <read=Str("Format: %s", EnumToString(this.v9))>;
+};

@@ -11,10 +11,14 @@
 //   History: 
 //------------------------------------------------------------------------
 
+#include "../Common.bt"
+
 // Switch the type from Default to Head if you want to parse a head model!
 const string Type <hidden=true> = "Default";
 
-#include "../Common.bt"
+// If you're parsing an HD model made by Magic Media from the Challenge Mode Update
+// You'll want to switch the vertex structure from Default to HD!
+const string VertexStructure <hidden=true> = "Default";
 
 typedef struct // Thanks MuruCoder for figuring the shaders out
 {
@@ -56,10 +60,16 @@ typedef struct
     VEC3F Vertices;
     VEC3UB Normals <comment="Subtract 127 and normalize">;
     ubyte MaterialIndex <name="Material Index">;
+    if (VertexStructure == "Default") {
+        VEC3UB Indices <name="Bone Indices">;
+        ubyte U <read=UByteToFloat>;
+        VEC3UB Weights <name="Bone Weights">;
+        ubyte V <read=UByteToFloat>;
+    } else {
     VEC3UB Indices <name="Bone Indices">;
-    ubyte U <read=UByteToFloat>;
     VEC3UB Weights <name="Bone Weights">;
-    ubyte V <read=UByteToFloat>;
+    VEC2F UV <name="UV Map">;
+    }
 } Vertices <name="Vertices">;
 
 struct
@@ -73,15 +83,12 @@ struct
 {
     FSkip(1);
         zero = ReadByte();
-}
+} // Padding
 
-if (Type == "Head")
-{
-    
+if (Type == "Head") {
     uint BoneCount <name="Bone Count">;
 
-    if (BoneCount > 0) 
-    {
+    if (BoneCount > 0)  {
         // A 3x4 matrix or 12-float tuple for each bone
         Matrices matrices[BoneCount] <optimize=false>;
 
@@ -92,16 +99,12 @@ if (Type == "Head")
         } animationRelatedValues[animationRelatedCountA];
 
         uint animationFrameCount;
-        // Frame numbers (assuming uint based on the read_uint_tuple call)
         uint animationFrames[animationFrameCount] <comment="Frame numbers?">;
 
         ushort animationRelatedB;
-        ushort animationRelatedC; // Unused in the logic, but still present in stream
+        ushort animationRelatedC; // Unused?
 
-        // This section creates a large array based on the product 
-        // of unknown3 (frames) and unknown4
-        if (animationFrameCount * animationRelatedB > 0)
-        {
+        if (animationFrameCount * animationRelatedB > 0) {
             struct {
                 float matrix[12];
             } animationMatrix[animationFrameCount * animationRelatedB];
@@ -120,7 +123,7 @@ if (Type == "Head")
 {
     FSkip(1);
         zero_2 = ReadByte();
-} // Some models have 2 bytes empty before the vertex buffer
+} // Padding
 
     Vertices vertices[VertexCount] <name="Vertices", optimize=false>;
 } TRM <name="Tomb Raider I-V Remastered .TRM Model", comment="Tomb Raider I-V Remastered .TRM File">;

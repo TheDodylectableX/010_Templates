@@ -1,0 +1,59 @@
+//---------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: BIN_Compressed.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering Ubisoft's JADE Engine's compressed BIN containers
+//  Category: Archives
+// File Mask: *.bin
+//  ID Bytes: 
+//   History: 
+//---------------------------------------------------------------------------------
+
+LittleEndian();
+
+// Optical drives (PS2, Xbox, GameCube) read data in hard physical 2048-byte sectors.
+// To maximize Direct Memory Access (DMA) streaming speeds and prevent CPU bottlenecks, The engine aligns files to these strict hardware boundaries.
+// The first 4 bytes of this file define the exact byte length of the actual data payload. Everything after that length is just zero-padding to fill out the remaining space of the final 2048-byte sector block on the disc.
+
+// Chunks are compressed in LZO1X algorithm
+
+uint fileSize <comment="True data length before sector padding">;
+
+if (ReadUInt(FTell()) == 0x78563412) {
+    // User parsed versiontag.bin for some reason, Only file in the games that isn't compressed.
+    uint32 sentinel1 <format=hex, fgcolor=cPurple>;
+    uint32 deadBabe  <format=hex, fgcolor=cPurple>;
+    uint32 coffee    <format=hex, fgcolor=cPurple>;
+    uint32 deadBeef  <format=hex, fgcolor=cPurple>;
+} else {
+
+    //--- LZO CHUNK STREAM ---
+    while (FTell() < fileSize + 4) {
+
+        // Safety Break: Truncated file prevention.
+        if (FileSize() - FTell() < 8) break;
+
+        // The Break Condition: Check if both uncompressed and compressed sizes are 0.
+        if (ReadUInt(FTell()) == 0 && ReadUInt(FTell() + 4) == 0) {
+            Printf("Zero-marker detected at 0x%X. Halting chunk read.\n", FTell());
+            break;
+        }
+
+        struct {
+            uint32 uncompressedSize <fgcolor=cAqua>;
+            uint32 compressedSize   <fgcolor=cGreen>;
+
+            // Map the exact payload size, No arbitrary subtraction.
+            if (compressedSize > 0 && FTell() + compressedSize <= FileSize()) {
+                ubyte lzoPayload[compressedSize] <bgcolor=0x202020>;
+            }
+        } LZOChunk <read=Str("Uncompressed Size: %d | Compressed Size: %d", uncompressedSize, compressedSize)>;
+    }
+}
+
+// ---SECTOR PADDING ---
+if (!FEof()) {
+    ubyte trailingSectorPadding[FileSize() - FTell()] <fgcolor=cDkGray, comment="Zero padding to 2048 boundary">;
+}

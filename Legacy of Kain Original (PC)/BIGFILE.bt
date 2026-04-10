@@ -1,0 +1,74 @@
+//---------------------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: BIGFILE.bt
+//   Authors: Dodylectable, watto
+//   Version: 1.0
+//   Purpose: Reverse engineering Legacy of Kain: Soul Reaver 1/2 and Defiance's BIGFILE.DAT archives
+//  Category: Archives
+// File Mask: BIGFILE.DAT
+//  ID Bytes: 
+//   History: 
+//---------------------------------------------------------------------------------------------------
+
+// Switch game types between SR1, SR2 and Defiance to parse formats properly!
+const string Game <hidden=true> = "SR1";
+
+if (Game == "SR1" || Game == "SR2") {
+    uint FileCount;
+}
+
+// ----------------------------
+// Legacy of Kain: Soul Reaver
+// ----------------------------
+
+if (Game == "SR1") {
+    struct
+    {
+        uint FileHash <comment="CRC32", format=hex>;
+        uint FileSize;
+        uint FileOffset;
+        char FileType[4];
+    } FileListing[FileCount] <read=Str("File Hash: %u | File Size: %d | File Offset: %d | File Type: %s", this.FileHash, this.FileSize, this.FileOffset, this.FileType), optimize=false>;
+}
+
+// -------------------------------
+// Legacy of Kain: Soul Reaver II
+// -------------------------------
+
+if (Game == "SR2") {
+    struct
+    {
+        uint FileHash <comment="CRC32", format=hex>;
+    } Hashes[FileCount] <read=FileHash, optimize=false>;
+
+    struct
+    {
+        uint FileSize <name="File Size">;
+        uint64 FileOffset <name="File Offset">;
+    } FileListing[FileCount] <read=Str("File Size: %d | File Offset: %d", this.FileSize, this.FileOffset), optimize=false>;
+}
+
+// -------------------------
+// Legacy of Kain: Defiance
+// -------------------------
+
+if (Game == "Defiance") {
+    struct
+    {
+        ushort FileCount;
+        FSkip(2); // No idea
+    } Header;
+
+    struct
+    {
+        uint FileHash <comment="CRC32", format=hex>;
+    } Hashes[Header.FileCount] <read=Str("File Hash: %u", this.FileHash), optimize=false>;
+
+    struct
+    {
+        uint64 FileSize;
+        uint64 FileOffset;
+        uint64 FileSizeCompressed;
+    } FileListing[Header.FileCount] <read=Str("File Size: %d | File Size Compressed: %u | File Offset: %u", this.FileSize, this.FileSizeCompressed, this.FileOffset), optimize=false>;
+}

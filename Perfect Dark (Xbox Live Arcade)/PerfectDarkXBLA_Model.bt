@@ -1,0 +1,99 @@
+//-----------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: PerfectDarkXBLA_Model.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering 4J Studios' remaster of Perfect Dark's model format
+//  Category: Models
+// File Mask: seg_2021 -> seg_2615.bin
+//  ID Bytes: 
+//   History: 
+//-----------------------------------------------------------------------------------
+
+BigEndian();
+
+#include "../Common.bt"
+
+typedef enum <uint> {
+    MESH_SKELETAL_1 = 0x447A0000,
+    MESH_SKELETAL_2 = 0x43480000,
+    MESH_SKELETAL_3 = 0x443B8000,
+    MESH_STATIC     = 0x42C80000
+} MESH_TYPE;
+
+struct {
+    uint vertexCount;
+    uint vertexDataOffset;
+    uint faceDataOffset;
+    uint meshCount;
+    uint meshDataOffset;
+    uint boneCount;
+    MESH_TYPE assetType <format=hex>;
+    uint vertexDataRelatedOffset;
+} Header; // 32 bytes long
+
+if (Header.boneCount > 0) {
+    struct {
+        float Matrix[12];
+    } Skeleton[Header.boneCount];
+}
+
+FSeek(Header.vertexDataRelatedOffset);
+struct {
+    if (Header.assetType == 0x447A0000 || Header.assetType == 0x43480000 || Header.assetType == 0x443B8000) {
+        ubyte Unknown[36]; 
+    } else if (Header.assetType == 0x42C80000) {
+        ubyte Unknown[12]; 
+    } else {
+        ubyte Unknown[36]; // Some placeholder but I don't think there's other formats than these
+    }
+} VertexRelatedData;
+
+FSeek(Header.meshDataOffset);
+struct SubMesh {
+    uint subMeshStartingFaceCount;  // Material start index
+    uint subMeshFaceCount;          // Amount of faces assigned per said material
+    uint materialHash <format=hex>; // Shader / Material to use in-engine, Could also be material hash
+};
+
+SubMesh Meshes[Header.meshCount] <read=Str("Start Index: %d | Face Count: %d | Material: %X", this.subMeshStartingFaceCount, this.subMeshFaceCount, this.materialHash), optimize=false>;
+
+FSeek(Header.vertexDataOffset);
+if (Header.assetType == 0x447A0000 || Header.assetType == 0x43480000 || Header.assetType == 0x443B8000) {
+    struct SkinnedVertex {
+        VEC3F Position;
+        VEC2F UV;
+        VEC3F Normal;
+        VEC4UB boneWeights; // Could be vertex color?
+        float unkFloat; // Both floats are either vertex color (RRGGBBAA) or mesh scale
+        float unkFloat2;
+        VEC4UB boneIndices;
+    } Vertices [Header.vertexCount]; // 48 bytes per vertex
+} else if (Header.assetType == 0x42C80000) {
+    struct StaticVertex {
+        VEC3F Position;
+        VEC2F UV;
+        VEC3F Normal;
+        VEC4UB vertexColor; // ARGB?
+    } Vertices [Header.vertexCount]; // 36 bytes per vertex
+} else {
+    struct UnknownVertex {
+        ubyte rawData[48]; // Some placeholder but I don't think there's other formats than these
+    } Vertices [Header.vertexCount];
+}
+
+FSeek(Header.faceDataOffset);
+struct Face {
+    VEC3US Indices;
+}; // Winding Order is i1 > i3 > i2
+
+// Dynamically size the face array by calculating the end of the final submesh
+local uint totalFaces <hidden=true> = 0;
+if (Header.meshCount > 0) {
+    totalFaces = Meshes[Header.meshCount - 1].subMeshStartingFaceCount + Meshes[Header.meshCount - 1].subMeshFaceCount;
+}
+
+if (totalFaces > 0) {
+    Face Faces[totalFaces];
+}

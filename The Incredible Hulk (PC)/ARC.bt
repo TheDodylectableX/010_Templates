@@ -11,7 +11,7 @@
 //   History: 
 //---------------------------------------------------------
 
-// Xbox 360 .ARC has a difference where the Footer is LE and everything else afterwards is BE
+// Xbox 360 variant has a difference where the footer is LE and everything else afterwards is BE
 // Then another integer in the file listing
 
 typedef struct
@@ -27,15 +27,13 @@ typedef struct
     uint FileOffset <comment="The offset of the file", name="File Offset">;
     uint FileSize <comment="The file's size", name="File Size">;
     string FileListing <comment="File listing", name="File Listing">;
-    uint UnknownIntegerA <comment="Unknown, needs more research", name="Unknown Integer A">;
-    uint UnknownIntegerB <comment="Unknown, needs more research", name="Unknown Integer B">;
-} Files <name="Archive Files", read=Str("(File: %s | File Index: %d | File Offset: %d | File Size: %d bytes)", this.FileListing, this.FileIndex, this.FileOffset, this.FileSize)>;
+    uint UnknownIntegerA <comment="Unknown, needs more research", name="Unknown Integer A", format=hex>;
+    uint UnknownIntegerB <comment="Unknown, needs more research", name="Unknown Integer B", format=hex>;
+} Files <name="Archive Files", read=Str("File: %s | File Index: %d | File Offset: %d | File Size: %d bytes", this.FileListing, this.FileIndex, this.FileOffset, this.FileSize)>;
 
-typedef struct
+struct
 {
     Footer footer <comment="Archive footer", name="Archive Footer">;
 if (footer.FileCount > 0)
     Files files[footer.FileCount] <comment="File entry", optimize=false, name="Archive Files">;
 } IncredibleHulkARC <comment="The Incredible Hulk .ARC Format", name="The Incredible Hulk .ARC Archive">;
-
-IncredibleHulkARC FILE;

@@ -7,7 +7,7 @@
 //   Purpose: Reverse engineering .PAK archives of Commandos: Strike Force
 //  Category: Archives
 // File Mask: *.PAK
-//  ID Bytes: 50 41 4B 41/ 50 41 4B 43
+//  ID Bytes: 50 41 4B 41 | 50 41 4B 43
 //   History: 
 //------------------------------------------------------------------------
 

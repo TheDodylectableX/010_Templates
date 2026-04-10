@@ -1,0 +1,61 @@
+//---------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: POD.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering Terminal Reality's Infernal Engine archives
+//  Category: Archives
+// File Mask: *.POD
+//  ID Bytes: 50 4F 44 32 | 50 4F 44 33 | 50 4F 44 35
+//   History: 
+//---------------------------------------------------------------------------
+
+LittleEndian();
+
+typedef struct {
+    char Magic[4];
+    uint32 HeaderUnknown;
+    char ArchiveDescription[80] <name="Archive Description">;
+    uint32 fileCount <name="File Count">;
+
+    if (Magic == "POD2") {
+        uint32 trailingUnknown <comment="Trailing padding">;
+        local uint32 fileTableOffset <hidden=true> = 0x60; 
+    } else if (Magic == "POD3") {
+        uint32 padding[43] <hidden=true, comment="172 bytes of empty padding">; 
+        uint32 fileTableOffset <name="File Table Offset", format=hex, comment="Absolute offset to the file table">;
+    } else {
+        Warning("Invalid Magic Signature! Expected 'POD2', 'POD3' or 'POD5'.");
+        local uint32 fileTableOffset <hidden=true> = 0;
+    }
+} Header <name="Header">;
+
+typedef struct (uint32 stringTableOffset) {
+    uint32 nameOffset <format=hex, name="File Name Offset", comment="Offset relative to the String Table">;
+    uint32 fileSize   <format=hex, name="File Size">;
+    uint32 fileOffset <format=hex,name="File Offset", comment="Absolute offset to file data">;
+    uint32 Padding[2] <hidden=true>;
+
+    local uint64 returnPos <hidden=true> = FTell();
+
+    FSeek(stringTableOffset + nameOffset);
+    string fileName <name="File Name">;
+    FSeek(returnPos);
+} FileEntry <read=ReadPODEntry, optimize=false>;
+
+string ReadPODEntry(FileEntry &entry) {
+    return entry.fileName;
+}
+
+struct {
+    Header header;
+    if (header.fileCount > 0) {
+        FSeek(header.fileTableOffset);
+        local uint32 stringTableStart <hidden=true> = header.fileTableOffset + (header.fileCount * 20);
+    
+        struct {
+            FileEntry entries(stringTableStart)[header.fileCount];
+        } FileTable <name="File Directory Table">;
+    }
+} POD <name="Terminal Reality Infernal Engine .POD Archive">;

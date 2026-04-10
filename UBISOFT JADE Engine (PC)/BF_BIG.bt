@@ -23,8 +23,8 @@ typedef struct
 {
     char Magic[4] <comment="Always BIG", name="Magic">;
     uint Version <comment="Version", name="Version">; arcVersion = Version;
-    uint FileCount <comment="File count", name="File Count">;
-    uint FolderCount <comment="Folder count", name="Folder Count">;
+    uint FileCount <name="File Count">;
+    uint FolderCount <name="Folder Count">;
     FSkip(16); // Reserved
     uint HeaderUnkA <comment="Needs more research", name="Unknown Header Value A">;
     FSkip(4); // 1
@@ -34,7 +34,7 @@ typedef struct
     uint HeaderSize <comment="Always 68 bytes long", name="Header Length">;
     FSkip(8); // 0
     uint HeaderUnkD <comment="Needs more research", name="Unknown Header Value C">;
-} Header <name="Header", comment="The header of the file", read=Str("(BF Version: %d | File Count: %d Files | Folder Count: %d Folders)", this.Version, this.FileCount, this.FolderCount)>;
+} Header <name="Header", read=Str("BF Version: %d | File Count: %d Files | Folder Count: %d Folders", this.Version, this.FileCount, this.FolderCount)>;
 
 typedef struct
 {
@@ -50,11 +50,11 @@ typedef struct
         zero = ReadByte();
 }
 
-} FileOffsets < name="File Offset", comment="Where the files are located inside the archive", read=FileOffset>;
+} FileOffsets <name="File Offset", read=FileOffset>;
 
 typedef struct
 {
-    uint FileSize <name="File Size", comment="File size">;
+    uint FileSize <name="File Size">;
     uint FileUnkA <name="Unknown Value A", comment="Needs more research">;
     uint FileUnkB <name="Unknown Value B", comment="Needs more research">;
     uint FileFlags <name="File Flags?", comment="File flags maybe? Needs more research">;
@@ -66,14 +66,12 @@ typedef struct
         char UnknownChecksum[32]<name="File Checksum?", comment="Looks like some sort of checksum or key, Needs more research">;
         FSkip(4); // Reserved
     }
-} Files <name="Archive Files", comment="Archive files", read=Str("(File: %s | File Size: %d bytes | File Flags: %d)", this.FileListing, this.FileSize, this.FileFlags)>;
+} Files <name="Archive Files", comment="Archive files", read=Str("File: %s | File Size: %d bytes | File Flags: %d", this.FileListing, this.FileSize, this.FileFlags)>;
 
-typedef struct
+struct
 {
     Header header;
     if (header.FileCount > 0)
-        FileOffsets fileoffsets[header.FileCount] <comment="File offsets", optimize=false, name="File Offsets">;
-        Files files[header.FileCount] <comment="File listing", optimize=false, name="File Listing">;
-} Ubisoft_BF;
-
-Ubisoft_BF file <comment="Ubisoft .BF (BIG) Archive", name="Ubisoft [.BF] (BIG) Archive">;
+        FileOffsets fileoffsets[header.FileCount] <optimize=false, name="File Offsets">;
+        Files files[header.FileCount] <optimize=false, name="File Listing">;
+} Ubisoft_BF <comment="Ubisoft .BF (BIG) Archive", name="Ubisoft [.BF] (BIG) Archive">;

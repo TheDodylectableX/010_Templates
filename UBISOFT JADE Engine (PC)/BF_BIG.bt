@@ -19,8 +19,7 @@
 
 local uint arcVersion <hidden=true>;
 
-typedef struct
-{
+typedef struct {
     char Magic[4] <comment="Always BIG", name="Magic">;
     uint Version <comment="Version", name="Version">; arcVersion = Version;
     uint FileCount <name="File Count">;
@@ -36,34 +35,22 @@ typedef struct
     uint HeaderUnkD <comment="Needs more research", name="Unknown Header Value C">;
 } Header <name="Header", read=Str("BF Version: %d | File Count: %d Files | Folder Count: %d Folders", this.Version, this.FileCount, this.FolderCount)>;
 
-typedef struct
-{
-    uint FileOffset <name="File Offset", comment="Where a file is located">;
+typedef struct {
+    uint FileOffset <name="File Offset">;
     FSkip(4); // ?? I have no idea what this is
-
-    // Skip the padding and go to the file listings
-    local ubyte zero <hidden=true>;
-        zero = ReadByte();
-            while (zero == 0)
-{
-    FSkip(1);
-        zero = ReadByte();
-}
-
 } FileOffsets <name="File Offset", read=FileOffset>;
 
 typedef struct
 {
-    uint FileSize <name="File Size">;
-    uint FileUnkA <name="Unknown Value A", comment="Needs more research">;
-    uint FileUnkB <name="Unknown Value B", comment="Needs more research">;
+    uint FileSize  <name="File Size">;
+    uint FileUnkA  <name="Unknown Value A", comment="Needs more research">;
+    uint FileUnkB  <name="Unknown Value B", comment="Needs more research">;
     uint FileFlags <name="File Flags?", comment="File flags maybe? Needs more research">;
-    uint FileUnkC <name="File Hash?", comment="Possible hash? Needs more research", format=hex>;
+    uint FileUnkC  <name="File Hash?", comment="Possible hash? Needs more research", format=hex>;
     char FileListing[64] <name="File Listing", comment="Always 64 bytes long">;
-    if (arcVersion == 42)
-    {
+    if (arcVersion == 42) {
         uint UnknownValueD;
-        char UnknownChecksum[32]<name="File Checksum?", comment="Looks like some sort of checksum or key, Needs more research">;
+        char UnknownChecksum[32] <name="File Checksum?", comment="Looks like some sort of checksum or key, Needs more research">;
         FSkip(4); // Reserved
     }
 } Files <name="Archive Files", comment="Archive files", read=Str("File: %s | File Size: %d bytes | File Flags: %d", this.FileListing, this.FileSize, this.FileFlags)>;
@@ -73,5 +60,7 @@ struct
     Header header;
     if (header.FileCount > 0)
         FileOffsets fileoffsets[header.FileCount] <optimize=false, name="File Offsets">;
+        while (!ReadByte()) // Skip empty padding bytes
+            FSkip(1);
         Files files[header.FileCount] <optimize=false, name="File Listing">;
 } Ubisoft_BF <comment="Ubisoft .BF (BIG) Archive", name="Ubisoft [.BF] (BIG) Archive">;

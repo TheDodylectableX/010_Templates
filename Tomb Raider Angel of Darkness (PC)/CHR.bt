@@ -1,0 +1,166 @@
+//---------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: CHR.bt
+//   Authors: Dodylectable, Violet
+//   Version: 1.0
+//   Purpose: Reverse engineering TR: Angel of Darkness' 3D models
+//  Category: Models
+// File Mask: *.CHR
+//  ID Bytes: 00 00 00 00
+//   History: 
+//---------------------------------------------------------------------
+
+LittleEndian();
+#include "../Common.bt"
+
+typedef struct {
+    VEC4F Origin;
+    float Radius;
+    FSkip(12); // Padding
+} COLLIDESPHERE;
+
+typedef enum <short> { // Padded byte entry
+  DRAWPT_POINTLIST = 0x1,
+  DRAWPT_LINELIST = 0x2,
+  DRAWPT_LINESTRIP = 0x3,
+  DRAWPT_TRIANGLELIST = 0x4,
+  DRAWPT_TRIANGLESTRIP = 0x5,
+  DRAWPT_TRIANGLEFAN = 0x6,
+} DRAW_PRIMITIVETYPE;
+
+typedef enum <uint> {
+    UNKNOWN = 21,
+} TEXTURE_FORMAT;
+
+typedef struct {
+    VEC3SS primaryPositions;
+    VEC3SS secondaryPositions;
+    VEC3SB primaryNormals;
+    VEC3SB secondaryNormals;
+    VEC3SB primaryTangents;
+    VEC3SB primaryBinormals;
+    VEC3SB secondaryTangents;
+    VEC3SB secondaryBinormals;
+    short BoneWeight;
+    ubyte BoneIndices[2];
+    VEC2SS UV;
+} SYS_D3D_SKIN__VECTOR_WEIGHTED;
+
+typedef struct {
+    VEC3SS Positions;
+    VEC3SB Normals;
+    VEC3SB Tangents;
+    VEC3SB Binormals;
+    VEC2SS UV;
+} SYS_D3D_SKIN__VECTOR_RIGGED;
+
+typedef struct {
+    uint Magic;
+    uint textureDataPointer;
+    uint skeletonDataOffset;
+    uint Unknown;
+    uint primaryMeshDataPointer;
+    uint boneCount;
+} Header <name="Header">;
+
+typedef struct(uint boneCount) {
+    struct {
+        int boneFlags;
+        char boneName[64];
+        int boneID;
+        int boneIndex;
+        int matrixIndex;
+        VEC4F bindPose[4];
+        VEC4F absoluteBind[4];
+        VEC4F preTransform[4];
+        VEC4F postTransform[4];
+        COLLIDESPHERE sphere;
+        int physicsFlags;
+        uint parentBone;
+        FSkip(72); // Padding
+    } Bone[boneCount] <read=boneName, optimize=false>;
+} SkeletonData <name="Skeleton">;
+
+typedef struct {
+    uint faceCount;
+    ushort Indices[faceCount];
+} IndicesData;
+
+typedef struct {
+    uint numRuns;
+    struct Elements {  
+        short primitiveCount;
+        short faceCount;
+        short indicesStart;
+        ushort materialIndex;
+        short textureBumpIndex;
+        DRAW_PRIMITIVETYPE faceType;
+    } runs[numRuns];
+} RunData;
+
+typedef struct {
+    int Unknown;
+    uint skinID;
+    uint vertexCount;
+    SYS_D3D_SKIN__VECTOR_WEIGHTED vertices[vertexCount];
+    IndicesData Faces;
+    RunData runData;
+} SkinData;
+
+typedef struct {
+    int Unknown;
+    int meshFlags;
+    int meshID <format=hex>;
+    int indexBone;
+    int indexAnimationBone;  
+    int vertexCount;
+    SYS_D3D_SKIN__VECTOR_RIGGED Vertices[vertexCount]<optimize=false>;
+    IndicesData Faces;
+    RunData runData;
+} RiggedData;
+
+typedef struct {
+    uint Unknown;
+    SkinData skinData;
+} Mesh1;
+
+typedef struct {
+    int numChildren;
+    RiggedData riggedData[numChildren] <optimize=false>;
+} Mesh2;
+
+struct TextureData {
+    int materialCount;
+    struct Material {
+        int textureFlags;
+        int textureCount;
+        int indexTextures[textureCount];
+    } materials[materialCount] <name="Material", optimize=false>;
+    
+    int textureCount;
+    struct Texture {
+        TEXTURE_FORMAT textureFormat;
+        uint textureUse;
+        uint frameCount;
+        uint mipMapCount;
+        uint textureWidth;
+        uint textureHeight;
+        uint textureSize;
+        ubyte data[textureSize];
+    } textures[textureCount] <name="Texture", optimize=false>;
+};
+
+struct {
+    Header header;
+
+    FSeek(header.skeletonDataOffset);
+    SkeletonData skeleton(header.boneCount) <optimize=false>;
+
+    FSeek(header.primaryMeshDataPointer);
+    Mesh1 mesh1Data <optimize=false>;
+    Mesh2 mesh2Data <optimize=false>;
+
+    FSeek(header.textureDataPointer);
+    TextureData textureData <optimize=false>;
+} CHR <name="Tomb Raider: Angel of Darkness .CHR File">;

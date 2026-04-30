@@ -11,7 +11,10 @@
 //   History: 
 //------------------------------------------------
 
+LittleEndian();
 #include "../Common.bt"
+
+const string Game <hidden=true> = "SE3"; // or SE4
 
 struct
 {
@@ -20,7 +23,7 @@ struct
     uint FaceCount;
     uint TriangleCount;
     uint UnknownCount;
-} Header <read=Str("(Mesh Count: %d | Vertex Count: %d | Face Count: %d)", this.MeshCount, this.VertexCount, this.FaceCount)>;
+} Header <read=Str("Mesh Count: %d | Vertex Count: %d | Face Count: %d", this.MeshCount, this.VertexCount, this.FaceCount)>;
 
 struct
 {
@@ -30,7 +33,7 @@ struct
     uint UnknownValue_B;
     uint UnknownValue_C <comment="A flag of sorts?">;
     uint UnknownValue_D;
-} SubmeshMeshHeader [Header.MeshCount] <name="Submesh Header", read=Str("(Submesh Hash: 0x%X | Submesh Face Count: %d)", this.SubmeshHash, this.SubmeshFaceCount), optimize=false>;
+} SubmeshMeshHeader [Header.MeshCount] <name="Submesh Header", read=Str("Submesh Hash: 0x%X | Submesh Face Count: %d", this.SubmeshHash, this.SubmeshFaceCount), optimize=false>;
 
 VEC3F MeshScale;
 VEC3F MeshOffset <comment="Must be multiplied by 2">;
@@ -38,14 +41,19 @@ VEC3F MeshOffset <comment="Must be multiplied by 2">;
 struct
 {
     VEC3US Position;
-    short MinusOne;
-    VEC2HF UV_0;
+    short Flag;
+    VEC2HF UV0;
     VEC3US Normals;
-    ubyte UnknownValues[4];
+    VEC4UB UnknownValues;
     VEC3US Tangents <comment="Maybe? I have no idea">;
-    VEC2HF UV_1;
-    VEC4UB Weights; // SE4 & ZA4 have 8 weights
-    VEC4UB Indices; // SE4 & ZA4 have 8 indices
+    VEC2HF UV1;
+    if (Game == "SE3") {
+        VEC4UB Weights;
+        VEC4UB Indices;
+    } else {
+        ubyte Weights[8]; // SE4 & ZA4 have 8 weights
+        ubyte Indices[8]; // SE4 & ZA4 have 8 indices
+    }
 } Vertices [Header.VertexCount] <optimize=false>;
 
 VEC3US Faces [Header.TriangleCount] <optimize=false>;

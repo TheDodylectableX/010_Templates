@@ -1,0 +1,59 @@
+//------------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: INDEX_RESOURCES.bt
+//   Authors: Dodylectable, tjoener
+//   Version: 1.0
+//   Purpose: Reverse engineering Wolfenstein: The New Order / Old Blood's file list format
+//  Category: Archives
+// File Mask: *.index
+//  ID Bytes: 03 53 45 52
+//   History: 
+//------------------------------------------------------------------------------------------
+
+// .resources Archives are ZLib compressed
+#include "../Common.bt"
+
+//------------------------------------------------------------------------------------------
+
+typedef struct {
+    BigEndian();
+    ubyte INDEXType <name="INDEX Type", comment="2 = Index / 3 = Resources">;
+    char Magic[3]   <name="Magic", comment="Always SER">;
+    uint INDEXSize  <name="INDEX Size", comment="Size of this file minus 32 bytes">;
+    FSkip(24); // Reserved
+} Header;
+
+typedef struct {
+    char Language[16] <name="Platform Stream Data Language">;
+    uint streamDataOffset <name="Platform Stream Data Offset">;
+    uint streamDataSize <name="Platform Stream Data Size">;
+} idPlatformStreamData;
+
+typedef struct {
+    BigEndian();
+    int resourceIndex <name="Resource Index">;
+    LittleEndian();
+    String resourceType <name="Resource Type">;
+    String resourceFileNameUncooked <name="Resource Name (Uncooked)", comment="Referenced in DECL files">;
+    String resourceFileNameCooked <name="Resource Name (Cooked)", comment="This is in the actual archive">;
+    BigEndian();
+    uint resourceOffset <name="Resource Offset">;
+    uint resourceSizeUncompressed <name="Resource Size (Uncompresed)">;
+    uint resourceSizeCompressed <name="Resource Size (Compressed)", comment="ZLib">;
+    uint idPlatformStreamDataCount <name="Platform Stream Data Count">;
+    if (idPlatformStreamDataCount > 0) idPlatformStreamData platformStreamData[idPlatformStreamDataCount] <name="Platform Stream Data", optimize=false>;
+    uint useBits;
+    ubyte resourceID <name="Resource ID">;
+} ResourceEntry;
+
+//------------------------------------------------------------------------------------------
+
+struct {
+    Header header <name="Header">;
+    uint fileCount <name="File Count">;
+    uint totalFileCount <name="Total File Count">;
+    if (totalFileCount > 0) ResourceEntry entry[totalFileCount] <name="Resource Entry", optimize=false>;
+} INDEX <name="id Software id Tech 5 .INDEX File">;
+
+//------------------------------------------------------------------------------------------

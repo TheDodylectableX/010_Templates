@@ -23,13 +23,6 @@ const string VertexStructure <hidden=true> = "Default";
 
 //------------------------------------------------------------------------
 
-typedef struct {
-    char Magic[4] <name="Magic", comment="Magic of the format">;
-    uint ShaderCount <name="Shader Count">;
-    Shaders shaders[ShaderCount];
-    uint TextureCount <name="Texture Count">;
-} Header <name="Header", comment="The header of the file", read=Str("(Model Type: %s | %d Textures)", this.Magic, this.TextureCount)>;
-
 typedef struct { // Thanks MuruCoder for figuring the shaders out
     uint Type <name="Shader Type">;
     VEC4F Parameters <name="Shader Parameters">;
@@ -40,6 +33,13 @@ typedef struct { // Thanks MuruCoder for figuring the shaders out
     uint AdditiveOffset <name="Additive Offset", comment="This is the start of how many triangles that need to be rendered additive">;
     uint AdditiveLength <name="Additive Length", comment="This is the length of how many triangles that need to be rendered additive, Divide by 3">;
 } Shaders <name="Shaders">;
+
+typedef struct {
+    char Magic[4] <name="Magic", comment="Magic of the format">;
+    uint ShaderCount <name="Shader Count">;
+    Shaders shaders[ShaderCount];
+    uint TextureCount <name="Texture Count">;
+} Header <name="Header", comment="The header of the file", read=Str("(Model Type: %s | %d Textures)", this.Magic, this.TextureCount)>;
 
 typedef struct { ushort ID <comment="Corresponds to a DDS file with the same name in TEX folder">; } Textures <name="Textures", comment="The textures used in this model", read=Str("Texture: %d.DDS", this.ID)>;
 
@@ -70,46 +70,30 @@ typedef struct {
 struct {
     Header header;
     Textures textures[header.TextureCount];
-    
-    local ubyte zero <hidden=true>;
-        zero = ReadByte();
-            while (zero == 0)
-{
-    FSkip(1);
-        zero = ReadByte();
-} // Padding
+    while (!ReadByte()) FSkip(1);
 
-if (Type == "Head") {
-    uint BoneCount <name="Bone Count">;
+    if (Type == "Head") {
+        uint BoneCount <name="Bone Count">;
 
-    if (BoneCount > 0)  {
-        // A 3x4 matrix or 12-float tuple for each bone
-        Matrices matrices[BoneCount] <optimize=false>;
+        if (BoneCount > 0)  {
+            Matrices matrices[BoneCount] <optimize=false>;
 
-        uint animationRelatedCountA;
-        // A pair of uints for each count
-        struct { uint animationRelatedValue[2]; } animationRelatedValues[animationRelatedCountA];
+            uint animationRelatedCountA;
+            // A pair of uints for each count
+            struct { uint animationRelatedValue[2]; } animationRelatedValues[animationRelatedCountA];
 
-        uint animationFrameCount;
-        uint animationFrames[animationFrameCount] <comment="Frame numbers?">;
-        ushort animationRelatedB;
-        ushort animationRelatedC; // Unused?
-        if (animationFrameCount * animationRelatedB > 0) { struct { float matrix[12]; } animationMatrix[animationFrameCount * animationRelatedB]; }
+            uint animationFrameCount;
+            uint animationFrames[animationFrameCount] <comment="Frame numbers?">;
+            ushort animationRelatedB;
+            ushort animationRelatedC; // Unused?
+            if (animationFrameCount * animationRelatedB > 0) { struct { float matrix[12]; } animationMatrix[animationFrameCount * animationRelatedB]; }
+        }
     }
-}
 
     uint FaceCount <name="Face Count", comment="Divide by 3 to get the actual count">;
     uint VertexCount <name="Vertex Count">;
     if (FaceCount > 0) Triangles triangles[FaceCount / 3] <name="Triangles", optimize=false>;
-    
-    local ubyte zero_2 <hidden=true>;
-        zero_2 = ReadByte();
-            while (zero_2 == 0)
-{
-    FSkip(1);
-        zero_2 = ReadByte();
-} // Padding
-
+    while (!ReadShort()) FSkip(2);
     if (VertexCount > 0) Vertices vertices[VertexCount] <name="Vertices", optimize=false>;
 } TRM <name="Tomb Raider I-V Remastered .TRM Model", comment="Tomb Raider I-V Remastered .TRM File">;
 

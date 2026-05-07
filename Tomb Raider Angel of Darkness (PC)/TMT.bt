@@ -20,6 +20,8 @@
 LittleEndian();
 #include "../Common.bt"
 
+//---------------------------------------------------------------------
+
 typedef struct {
     char Magic[4];
     ubyte headerSize <name="Header Size">;
@@ -43,8 +45,12 @@ typedef struct (int totalMorphTargetCount) {
     TMT_VertexData Morph[totalMorphTargetCount] <optimize=false>;
 } VertexBlock <name="Vertex", read=Str("Base Position: (%.4f, %.4f, %.4f)", this.Morph[0].Positions.X, this.Morph[0].Positions.Y, this.Morph[0].Positions.Z)>;
 
+//---------------------------------------------------------------------
+
 struct {
     Header header <bgcolor=cLtPurple>;
     local int totalMorphTargetCount <hidden=true> = header.morphTargetCount + 1;
     VertexBlock Vertices(totalMorphTargetCount)[header.vertexCount] <bgcolor=cLtBlue, optimize=false>;
 } TMT <name="Tomb Raider: Angel of Darkness .TMT File">;
+
+//---------------------------------------------------------------------

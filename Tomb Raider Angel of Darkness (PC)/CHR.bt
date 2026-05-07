@@ -33,27 +33,7 @@ typedef enum <uint> {
     UNKNOWN = 21,
 } TEXTURE_FORMAT;
 
-typedef struct {
-    VEC3SS primaryPositions;
-    VEC3SS secondaryPositions;
-    VEC3SB primaryNormals;
-    VEC3SB secondaryNormals;
-    VEC3SB primaryTangents;
-    VEC3SB primaryBinormals;
-    VEC3SB secondaryTangents;
-    VEC3SB secondaryBinormals;
-    short BoneWeight;
-    ubyte BoneIndices[2];
-    VEC2SS UV;
-} SYS_D3D_SKIN__VECTOR_WEIGHTED;
-
-typedef struct {
-    VEC3SS Positions;
-    VEC3SB Normals;
-    VEC3SB Tangents;
-    VEC3SB Binormals;
-    VEC2SS UV;
-} SYS_D3D_SKIN__VECTOR_RIGGED;
+//---------------------------------------------------------------------
 
 typedef struct {
     uint Magic;
@@ -81,6 +61,30 @@ typedef struct(uint boneCount) {
         FSkip(72); // Padding
     } Bone[boneCount] <read=boneName, optimize=false>;
 } SkeletonData <name="Skeleton">;
+
+//---------------------------------------------------------------------
+
+typedef struct {
+    VEC3SS primaryPositions;
+    VEC3SS secondaryPositions;
+    VEC3SB primaryNormals;
+    VEC3SB secondaryNormals;
+    VEC3SB primaryTangents;
+    VEC3SB primaryBinormals;
+    VEC3SB secondaryTangents;
+    VEC3SB secondaryBinormals;
+    short BoneWeight;
+    ubyte BoneIndices[2];
+    VEC2SS UV;
+} SYS_D3D_SKIN__VECTOR_WEIGHTED;
+
+typedef struct {
+    VEC3SS Positions;
+    VEC3SB Normals;
+    VEC3SB Tangents;
+    VEC3SB Binormals;
+    VEC2SS UV;
+} SYS_D3D_SKIN__VECTOR_RIGGED;
 
 typedef struct {
     uint faceCount;
@@ -126,19 +130,21 @@ typedef struct {
 } Mesh1;
 
 typedef struct {
-    int numChildren;
+    uint numChildren;
     RiggedData riggedData[numChildren] <optimize=false>;
 } Mesh2;
 
+//---------------------------------------------------------------------
+
 struct TextureData {
-    int materialCount;
+    uint materialCount;
     struct Material {
         int textureFlags;
         int textureCount;
         int indexTextures[textureCount];
     } materials[materialCount] <name="Material", optimize=false>;
     
-    int textureCount;
+    uint textureCount;
     struct Texture {
         TEXTURE_FORMAT textureFormat;
         uint textureUse;
@@ -150,6 +156,8 @@ struct TextureData {
         ubyte data[textureSize];
     } textures[textureCount] <name="Texture", optimize=false>;
 };
+
+//---------------------------------------------------------------------
 
 struct {
     Header header;
@@ -164,3 +172,5 @@ struct {
     FSeek(header.textureDataPointer);
     TextureData textureData <optimize=false>;
 } CHR <name="Tomb Raider: Angel of Darkness .CHR File">;
+
+//---------------------------------------------------------------------

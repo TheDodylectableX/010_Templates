@@ -1,4 +1,4 @@
-//----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
 //      File: INDEX_RESOURCES.bt
@@ -9,7 +9,7 @@
 // File Mask: master_resources.index
 //  ID Bytes: 05 53 45 52
 //   History: 
-//----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 
 // .resources Archives are compressed with Oodle (Kraken)
 // Header data is stored in BE, The rest of the file is in LE
@@ -147,7 +147,7 @@ string ReadArchiveListing(ushort &id) {
     return s;
 }
 
-//----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 
 typedef struct {
     BigEndian();
@@ -171,12 +171,11 @@ typedef struct {
     ushort ArchiveNumber <read=ReadArchiveListing, name="Archive Number", comment="The number of the archive this file is stored in, corresponds to master.index' archive ordering">;
 } Files <comment="INDEX File Listing", name="INDEX File Listing">;
 
-//----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------
 
 struct {
     Header header;
-    if (header.FileCount > 0)
-        Files files[header.FileCount] <comment="INDEX File Listing", optimize=false>;
+    if (header.FileCount > 0) Files files[header.FileCount] <comment="INDEX File Listing", optimize=false>;
 } VOIDIndex <comment="VOID Engine .INDEX File", name="VOID Engine .INDEX File">;
 
-//----------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------

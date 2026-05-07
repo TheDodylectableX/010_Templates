@@ -19,6 +19,8 @@
 
 local uint arcVersion <hidden=true>;
 
+//------------------------------------------------------------------------
+
 typedef struct {
     char Magic[4] <comment="Always BIG", name="Magic">;
     uint Version <comment="Version", name="Version">; arcVersion = Version;
@@ -55,12 +57,15 @@ typedef struct
     }
 } Files <name="Archive Files", comment="Archive files", read=Str("File: %s | File Size: %d bytes | File Flags: %d", this.FileListing, this.FileSize, this.FileFlags)>;
 
+//------------------------------------------------------------------------
+
 struct
 {
     Header header;
     if (header.FileCount > 0)
         FileOffsets fileoffsets[header.FileCount] <optimize=false, name="File Offsets">;
-        while (!ReadByte()) // Skip empty padding bytes
-            FSkip(1);
+        while (!ReadByte()) FSkip(1); // Skip empty padding bytes 
         Files files[header.FileCount] <optimize=false, name="File Listing">;
-} Ubisoft_BF <comment="Ubisoft .BF (BIG) Archive", name="Ubisoft [.BF] (BIG) Archive">;
+} BF <name="Ubisoft .BF (BIG) File">;
+
+//------------------------------------------------------------------------

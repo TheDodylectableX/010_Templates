@@ -19,41 +19,33 @@ LittleEndian();
 
 // Chunks are compressed in LZO1X algorithm
 
-uint fileSize <comment="True data length before sector padding">;
+uint FileSize <comment="True data length before sector padding">;
 
-if (ReadUInt(FTell()) == 0x78563412) {
-    // User parsed versiontag.bin for some reason, Only file in the games that isn't compressed.
+if (ReadUInt(FTell()) == 0x78563412) { // User parsed versiontag.bin for some reason, Only file in the games that isn't compressed.
     uint32 sentinel1 <format=hex, fgcolor=cPurple>;
     uint32 deadBabe  <format=hex, fgcolor=cPurple>;
     uint32 coffee    <format=hex, fgcolor=cPurple>;
     uint32 deadBeef  <format=hex, fgcolor=cPurple>;
-} else {
-
-    //--- LZO CHUNK STREAM ---
-    while (FTell() < fileSize + 4) {
+} else { //--- LZO CHUNKS
+    while (FTell() < FileSize + 4) {
 
         // Safety Break: Truncated file prevention.
         if (FileSize() - FTell() < 8) break;
 
-        // The Break Condition: Check if both uncompressed and compressed sizes are 0.
+        // Check if both uncompressed and compressed sizes are 0.
         if (ReadUInt(FTell()) == 0 && ReadUInt(FTell() + 4) == 0) {
             Printf("Zero-marker detected at 0x%X. Halting chunk read.\n", FTell());
             break;
         }
 
         struct {
-            uint32 uncompressedSize <fgcolor=cAqua>;
-            uint32 compressedSize   <fgcolor=cGreen>;
+            uint SizeUncompressed <fgcolor=cAqua>;
+            uint SizeCompressed   <fgcolor=cGreen>;
 
-            // Map the exact payload size, No arbitrary subtraction.
-            if (compressedSize > 0 && FTell() + compressedSize <= FileSize()) {
-                ubyte lzoPayload[compressedSize] <bgcolor=0x202020>;
-            }
-        } LZOChunk <read=Str("Uncompressed Size: %d | Compressed Size: %d", uncompressedSize, compressedSize)>;
+            if (SizeCompressed > 0 && FTell() + SizeCompressed <= FileSize()) { ubyte LZOPayload[SizeCompressed] <bgcolor=0x202020>; }
+        } LZOChunk <read=Str("Uncompressed Size: %d | Compressed Size: %d", this.SizeUncompressed, this.SizeCompressed)>;
     }
 }
 
 // ---SECTOR PADDING ---
-if (!FEof()) {
-    ubyte trailingSectorPadding[FileSize() - FTell()] <fgcolor=cDkGray, comment="Zero padding to 2048 boundary">;
-}
+if (!FEof()) { ubyte trailingSectorPadding[FileSize() - FTell()] <fgcolor=cDkGray, comment="Zero padding to 2048 boundary">; }

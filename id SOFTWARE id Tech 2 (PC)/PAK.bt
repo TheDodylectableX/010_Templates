@@ -14,11 +14,13 @@
 // PACK archives have file names fixed to 56 characters and must divide the file table size by 64 to get the file count
 // On the other hand SPAK archives file names are fixed to 120 chars and must divide the file table size by 128 instead
 
+//-------------------------------------------------------
+
 typedef struct {
     char Magic[4] <name="Magic", comment="PACK = QUAKE 1 & 2 | SPAK = SiN">;
     uint FileTableOffset <name="File Table Offset", comment="Where the file listings start">;
     uint FileTableSize <name="File Table Size", comment="Divide by 64 to get the amount of files in the archive if it's PACK, 128 if it's an SPAK archive">;
-} Header <name="Header", comment="The header of this archive", read=Str("Archive Magic: %s | File Table: %d | File Table Offset: %d", this.Magic, this.FileTableSize, this.FileTableOffset)>;
+} Header <name="Header"/ read=Str("Archive Magic: %s | File Table: %d | File Table Offset: %d", this.Magic, this.FileTableSize, this.FileTableOffset)>;
 
 typedef struct {
     char FileName[56] <name="File Name", comment="Fixed to 56 bytes">;

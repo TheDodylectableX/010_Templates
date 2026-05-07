@@ -1,0 +1,61 @@
+// -------------------------------
+// Below is Prince of Persia Only
+// -------------------------------
+// 0x01000000: Geometry Data
+// 0x04000000 | 0x05000000: Texture Data
+// 0x2E67616F: Game Object
+// 0x2E776F77: World Node
+
+// 0xEEFFC099: Entry Start Marker
+// 0x0FF7C0DE: Entry End Marker
+
+// -------------------------------
+
+LittleEndian();
+
+enum <uint> EntryMarker {
+    EntryStart = 0xEEFFC099,
+    EntryEnd   = 0x0FF7C0DE,
+};
+
+enum <uint> EntryFileType {
+    GeometryData    = 0x00000001,
+    TextureData_1   = 0x00000004,
+    TextureData2    = 0x00000005,
+    GameObject_GAO  = 0x6F61672E,
+    WorldNode_WOW   = 0x776F772E,
+};
+
+// -------------------------------
+
+// uint totalEntryCount; // BGAE only!
+while (!FEof()) {
+    
+    // Safety breaks so we don't infinitely loop at EOF
+    if (FileSize() - FTell() < 12) break;
+    if (ReadUInt(FTell() + 4) != 0xEEFFC099) break;
+
+    struct {
+        uint entrySize;
+        EntryMarker entryMarker <format=hex>;
+        uint entryKey <format=hex>;
+
+        // Only read the payload and scan for gaps if the entry actually has a size
+        if (entrySize > 0) {
+            EntryFileType entryFileType <format=hex>;
+
+            if (entrySize > 16) byte entryData[entrySize - 16];
+
+            // Dynamically measure the gap to the next chunk's 0x99C0FFEE pad
+            local int   gapCount  <hidden=true> = 0;
+            local int64 searchPos <hidden=true> = FTell();
+
+            while (searchPos + 8 <= FileSize() && ReadUInt(searchPos + 4) != 0xEEFFC099) { gapCount++; searchPos++; }
+
+            if (gapCount > 0) byte entryTrailingData[gapCount];
+        }
+
+    } Entry <optimize=false, read=Str("Key: %08X | Size: %d bytes | Type: %s", entryKey, entrySize, exists(entryFileType) ? (EnumToString(entryFileType) != "" ? EnumToString(entryFileType) : Str("%08Xh", entryFileType)) : "Unknown")>;
+}
+
+// -------------------------------

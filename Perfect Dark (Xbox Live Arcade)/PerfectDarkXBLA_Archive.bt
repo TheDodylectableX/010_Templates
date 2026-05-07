@@ -23,11 +23,12 @@ typedef enum <uint> {
     ARGB = 134
 } TEXTURE_FORMAT;
 
+//--------------------------------------------------------------------------------------
+
 BigEndian();
 uint fileCount;
 
-if (Type == "Seg")
-{
+if (Type == "Seg") {
     struct Segment {
         int offset;     // Absolute
         int size;
@@ -38,8 +39,9 @@ if (Type == "Seg")
     Segment segments[fileCount] <read=Str("File Offset: %d | File Size: %d | File Size On Disk: %d | File Parent ID: %d", this.offset, this.size, this.sizeOnDisk, this.parentID), optimize=false>;
 };
 
-if (Type == "Tex")
-{
+//--------------------------------------------------------------------------------------
+
+if (Type == "Tex") {
     struct TexSegment {
         int offset;       // Relative (Starts right after the last entry in TexSegment2)
         int imageWidth;   // X360
@@ -84,3 +86,5 @@ if (Type == "Tex")
     TexSegment segments[fileCount]   <read=Str("File Offset: %d | File Size: %d | File Size On Disk: %d | Texture Dimensions: %dx%d | File Parent ID: %d", this.offset, this.size, this.sizeOnDisk, this.imageWidth, this.imageHeight, this.parentID), optimize=false>;
     TexSegment2 segments2[fileCount] <read=Str("Format: %s", EnumToString(this.v9))>;
 };
+
+//--------------------------------------------------------------------------------------

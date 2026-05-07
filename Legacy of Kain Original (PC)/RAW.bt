@@ -14,23 +14,27 @@
 // Header is 128 bytes long
 // I think this is based on TGA because a lot of the game's code references it
 
+LittleEndian();
+
+//-------------------------------------------------------------------------------------------------------------
+
 struct {
     char Magic[4] <comment="Reversed">;
     uint Unk1;
-    uint imageSize <comment="Minus the header, 128 bytes">;
+    uint ImageSize <comment="Minus the header, 128 bytes">;
     uint Sixteen[2]; // ???
-    uint imageWidth;
-    uint imageHeight;
+    uint ImageWidth;
+    uint ImageHeight;
     uint Unk2;
     uint ThirtyTwo; // ??
     uint Unk3[4]; // Flags? Colors?
-    uint imageBitmasks[4] <format=hex>; // I saw a similar thing on the DDS format's header
+    uint ImageBitMasks[4] <format=hex>; // I saw a similar thing on the DDS format's header
     uint unkZero[2];
     uint unkAgain[2]; // Maybe mip map count but some NPOT images have numbers here so not sure
     uint unk5[7];
     uint Unk6[4] <format=hex>; // flags? colors? // pos 120 maybe format?
 } Header;
 
-struct {
-    byte imageData[Header.imageSize];
-} Image <optimize=false>;
+struct { byte ImageData[Header.ImageSize]; } Image <optimize=false>;
+
+//-------------------------------------------------------------------------------------------------------------

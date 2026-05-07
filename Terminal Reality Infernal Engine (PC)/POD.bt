@@ -13,43 +13,44 @@
 
 LittleEndian();
 
+//---------------------------------------------------------------------------
+
 typedef struct {
     char Magic[4];
-    uint32 HeaderUnknown;
+    uint HeaderUnknown <format=hex>;
     char ArchiveDescription[80] <name="Archive Description">;
-    uint32 fileCount <name="File Count">;
+    uint fileCount <name="File Count">;
     if (Magic == "POD2") {
-        uint32 trailingUnknown <comment="Trailing padding">;
-        local uint32 fileTableOffset <hidden=true> = 0x60; 
-    }else if (Magic == "POD3") {
-        uint32 padding[43] <hidden=true, comment="172 bytes of empty padding">; 
-        uint32 fileTableOffset <name="File Table Offset", format=hex, comment="Absolute offset to the file table">;
-    } else {
-        Warning("Invalid Magic Signature! Expected 'POD2', 'POD3' or 'POD5'.");
-        local uint32 fileTableOffset <hidden=true> = 0;
-    }
+        uint trailingUnknown <comment="Trailing padding">;
+        local uint fileTableOffset <hidden=true> = 0x60; 
+    } else if (Magic == "POD3") {
+        uint padding[43] <hidden=true, comment="172 bytes of empty padding">; 
+        uint fileTableOffset <name="File Table Offset", format=hex, comment="Absolute offset to the file table">;
+    } else { Warning("Invalid Magic Signature! Expected 'POD2', 'POD3' or 'POD5'."); local uint fileTableOffset <hidden=true> = 0; }
 } Header <name="Header", read=Str("%s Archive | %d Files | ''%s''", this.Magic, this.fileCount, this.ArchiveDescription)>;
 
-typedef struct (uint32 stringTableOffset) {
-    uint32 nameOffset <format=hex, name="File Name Offset", comment="Offset relative to the String Table">;
-    uint32 fileSize   <format=hex, name="File Size">;
-    uint32 fileOffset <format=hex,name="File Offset", comment="Absolute offset to file data">;
-    uint32 Padding[2] <hidden=true>;
+typedef struct (uint stringTableOffset) {
+    uint nameOffset <format=hex, name="File Name Offset", comment="Offset relative to the String Table">;
+    uint fileSize   <format=hex, name="File Size">;
+    uint fileOffset <format=hex, name="File Offset", comment="Absolute offset to file data">;
+    uint Padding[2] <hidden=true>;
     local uint64 returnPos <hidden=true> = FTell();
 
     FSeek(stringTableOffset + nameOffset);
     string fileName <name="File Name">;
     FSeek(returnPos);
-} FileEntry <read=ReadPODEntry, optimize=false>;
+} FileEntry <read=Str("%s | File Size: %d bytes | File Offset: %d", this.fileName, this.fileSize, this.fileOffset), optimize=false>;
 
-string ReadPODEntry(FileEntry &entry) { return entry.fileName; }
+//---------------------------------------------------------------------------
 
 struct {
     Header header;
     if (header.fileCount > 0) {
         FSeek(header.fileTableOffset);
-        local uint32 stringTableStart <hidden=true> = header.fileTableOffset + (header.fileCount * 20);
+        local uint stringTableStart <hidden=true> = header.fileTableOffset + (header.fileCount * 20);
     
-        struct {FileEntry entries(stringTableStart)[header.fileCount]; } FileTable <name="File Directory Table">;
+        struct { FileEntry entries(stringTableStart)[header.fileCount]; } FileTable <name="File Directory Table">;
     }
 } POD <name="Terminal Reality Infernal Engine .POD Archive">;
+
+//---------------------------------------------------------------------------

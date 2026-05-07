@@ -17,16 +17,14 @@ typedef enum <ushort> {
     DXT5   = 9
 } FORMAT;
 
-//------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
 
-typedef struct
-{
+typedef struct {
     uint imageCount <name="Image Count">;
     char imageName[28] <name="Name">;
 } Header <name="Header">;
 
-typedef struct
-{
+typedef struct {
     ushort imageID; // Some have identical IDs
     FORMAT imageFormat;
     ushort imageWidth, imageHeight;
@@ -34,9 +32,11 @@ typedef struct
     byte   imageData  [imageSize];
 } Image <name="Images", read=Str("Image ID: %d | Image Format: %s | Image Dimensions: %dx%d | Image Size: %d bytes", this.imageID, EnumToString(this.imageFormat), this.imageWidth, this.imageHeight, this.imageSize)>;
 
-struct
-{
+//-------------------------------------------------------------------------------------------------------------
+
+struct {
     Header header;
-    if (header.imageCount > 0)
-        Image images[header.imageCount] <optimize=false>;
+    if (header.imageCount > 0) Image images[header.imageCount] <optimize=false>;
 } VRM <name="Legacy of Kain: Soul Reaver | Defiance (Remastered) (.X64).VRM File">;
+
+//-------------------------------------------------------------------------------------------------------------

@@ -22,6 +22,8 @@ typedef enum <uint> {
     MESH_STATIC     = 0x42C80000
 } MESH_TYPE;
 
+//-----------------------------------------------------------------------------------
+
 struct {
     uint vertexCount;
     uint vertexDataOffset;
@@ -33,9 +35,7 @@ struct {
     uint vertexDataRelatedOffset;
 } Header; // 32 bytes long
 
-if (Header.boneCount > 0) {
-    struct { float Matrix[12]; } Skeleton[Header.boneCount];
-}
+if (Header.boneCount > 0) struct { float Matrix[12]; } Skeleton[Header.boneCount];
 
 FSeek(Header.vertexDataRelatedOffset);
 struct {
@@ -71,15 +71,15 @@ if (Header.assetType == 0x447A0000 || Header.assetType == 0x43480000 || Header.a
         VEC3F Normal;
         VEC4UB vertexColor; // ARGB?
     } Vertices [Header.vertexCount]; // 36 bytes per vertex
-} else {
-    struct UnknownVertex { ubyte rawData[48]; } Vertices [Header.vertexCount]; // Some placeholder but I don't think there's other formats than these
-}
+} else { struct UnknownVertex { ubyte rawData[48]; } Vertices [Header.vertexCount]; } // Some placeholder but I don't think there's other formats than these
 
 FSeek(Header.faceDataOffset);
-struct Face { VEC3US Indices; }; // Winding Order is i1 > i3 > i2
+struct Face { VEC3US Indices <comment="Winding Order is i1 > i3 > i2">; };
 
 // Dynamically size the face array by calculating the end of the final submesh
 local uint totalFaces <hidden=true> = 0;
 if (Header.meshCount > 0) { totalFaces = Meshes[Header.meshCount - 1].subMeshStartingFaceCount + Meshes[Header.meshCount - 1].subMeshFaceCount; }
 
 if (totalFaces > 0) { Face Faces[totalFaces]; }
+
+//-----------------------------------------------------------------------------------

@@ -14,6 +14,8 @@
 LittleEndian();
 #include "../Common.bt"
 
+//---------------------------------------------------------------------------------------
+
 typedef struct { // Thanks MuruCoder for figuring the shaders out
     uint Type <name="Shader Type">;
     VEC4F Parameters <name="Shader Parameters">;
@@ -36,6 +38,8 @@ typedef struct {
     char Texture[31] <comment="Corresponds to a set of DDS files (diffuse / norm / spec) with the same name in TEX folder">;
     ubyte TextureFlag;
 } Textures <name="Textures", comment="The textures used in this model", read=Str("%s", this.Texture)>;
+
+//---------------------------------------------------------------------------------------
 
 typedef struct { VEC3F Bone[4]; } BoneMatrices <name="Bone Matrices">;
 

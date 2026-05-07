@@ -1,0 +1,33 @@
+//---------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: GMX.bt
+//   Authors: Dodylectable, Nakamichi160
+//   Version: 1.0
+//   Purpose: Reverse engineering Tomb Raider: Angel of Darkness (Remastered)'s archives
+//  Category: Archives
+// File Mask: *.GMX
+//  ID Bytes: 66 66 66 40
+//   History: 
+//---------------------------------------------------------------------------------------
+
+typedef struct {
+    float Version; // Why a float????
+    ushort FileCount <name="File Count">;
+    ushort Unknown;
+} Header <name="Header", read=Str("GMX Version %f | %d Files", this.Version, this.FileCount)>;
+
+typedef struct {
+    uint FileNameHash <name="File Name Hash", format=hex>;
+    uint FileOffset <name="File Offset",comment="Add 2048 bytes">;
+    uint FileSize <name="File Size">;
+} File <name="File", read=Str("File Name Hash: 0x%X | File Offset: %d | File Size: %d", this.FileNameHash, this.FileOffset + 2048, this.FileSize)>;
+
+//---------------------------------------------------------------------------------------
+
+struct {
+    Header header;
+    if (header.FileCount > 0) File files[header.FileCount] <optimize=false>;
+} GMX <name="Tomb Raider: Angel of Darkness .GMX File">;
+
+//---------------------------------------------------------------------------------------

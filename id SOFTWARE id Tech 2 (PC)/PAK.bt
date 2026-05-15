@@ -14,25 +14,23 @@
 // PACK archives have file names fixed to 56 characters and must divide the file table size by 64 to get the file count
 // On the other hand SPAK archives file names are fixed to 120 chars and must divide the file table size by 128 instead
 
-//-------------------------------------------------------
-
 typedef struct {
-    char Magic[4] <name="Magic", comment="PACK = QUAKE 1 & 2 | SPAK = SiN">;
+    char Magic[4]        <name="Magic", comment="PACK = QUAKE 1 & 2 etc. | SPAK = SiN">;
     uint FileTableOffset <name="File Table Offset", comment="Where the file listings start">;
-    uint FileTableSize <name="File Table Size", comment="Divide by 64 to get the amount of files in the archive if it's PACK, 128 if it's an SPAK archive">;
-} Header <name="Header"/ read=Str("Archive Magic: %s | File Table: %d | File Table Offset: %d", this.Magic, this.FileTableSize, this.FileTableOffset)>;
+    uint FileTableSize   <name="File Table Size", comment="Divide by 64 to get the amount of files in the archive if it's PACK, 128 if it's an SPAK archive">;
+} Header <name="Header", read=Str("Archive Magic: %s | File Table: %d | File Table Offset: %d", this.Magic, this.FileTableSize, this.FileTableOffset)>;
 
 typedef struct {
-    char FileName[56] <name="File Name", comment="Fixed to 56 bytes">;
+    if (header.Magic == "PACK") char FileName[56] <name="File Name", comment="Fixed to 56 bytes">;
+    else char FileName[120] <name="File Name", comment="Fixed to 120 bytes">;
     uint FileOffset <name="File Offset", comment="Where the file is located in the archive">;
-    uint FileSize <name="File Size", comment="The size of the file in the archive">;
-} Files_PACK <name="Files", read=Str("File: %s | File Size: %d bytes | File Offset: %d", this.FileName, this.FileSize, this.FileOffset)>;
+    uint FileSize   <name="File Size", comment="The size of the file in the archive">;
 
-typedef struct {
-    char FileName[120] <name="File Name", comment="Fixed to 120 bytes">;
-    uint FileOffset <name="File Offset", comment="Where the file is located in the archive">;
-    uint FileSize <name="File Size", comment="The size of the file in the archive">;
-} Files_SPAK <name="Files", read=Str("File: %s | File Size: %d bytes | File Offset: %d", this.FileName, this.FileSize, this.FileOffset)>;
+    local uint64 currentPosition <hidden=true> = FTell();
+    FSeek(FileOffset);
+    byte FileData[FileSize] <name="File Data">;
+    FSeek(currentPosition);
+} FileEntry <name="Files", read=Str("File: %s | File Size: %d bytes | File Offset: %d", this.FileName, this.FileSize, this.FileOffset)>;
 
 //-------------------------------------------------------
 
@@ -40,12 +38,12 @@ struct {
     Header header;
     if (header.Magic == "PACK") {
         FSeek(header.FileTableOffset);
-        Files_PACK files[header.FileTableSize / 64] <optimize=false>;
+        FileEntry files[header.FileTableSize / 64] <optimize=false>;
     }
     else if (header.Magic == "SPAK") {
         FSeek(header.FileTableOffset);
-        Files_SPAK files[header.FileTableSize / 128] <optimize=false>;
+        FileEntry files[header.FileTableSize / 128] <optimize=false>;
     }
-} idT2PAK <name="id Tech 2 .PAK Archive", comment="idT2 .PAK File">;
+} idT2PAK <name="id Software id Tech 2 .PAK Archive">;
 
 //-------------------------------------------------------

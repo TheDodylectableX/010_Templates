@@ -19,8 +19,6 @@
 
 local uint arcVersion <hidden=true>;
 
-//------------------------------------------------------------------------
-
 typedef struct {
     char Magic[4] <comment="Always BIG", name="Magic">;
     uint Version <comment="Version", name="Version">; arcVersion = Version;
@@ -33,7 +31,7 @@ typedef struct {
     uint FileCountAgain <comment="File count again for some reason", name="File Count (Again)">;
     uint HeaderUnkC <comment="Needs more research", name="Unknown Header Value B">;
     uint HeaderSize <comment="Always 68 bytes long", name="Header Length">;
-    FSkip(8); // 0
+    FSkip(8); // Reserved
     uint HeaderUnkD <comment="Needs more research", name="Unknown Header Value C">;
 } Header <name="Header", read=Str("BF Version: %d | File Count: %d Files | Folder Count: %d Folders", this.Version, this.FileCount, this.FolderCount)>;
 

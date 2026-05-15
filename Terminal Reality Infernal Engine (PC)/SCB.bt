@@ -1,0 +1,40 @@
+//------------------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: SCB.bt
+//   Authors: Dodylectable, turfster (Initial Research)
+//   Version: 1.0
+//   Purpose: Reverse engineering Terminal Reality's Infernal Engine compiled scripts
+//  Category: Scripts
+// File Mask: *.SCB
+//  ID Bytes: 
+//   History: 
+//------------------------------------------------------------------------------------
+
+LittleEndian();
+
+typedef struct {
+    uint Version;
+    uint scriptLineCount    <name="Script Line Count">;
+    uint redundantLineCount <name="Redundant Line Count">;
+} SCB_HEADER <name="Header", read=Str("Version %u | Script Line Count: %u | Redundant Line Count: %u",
+                                       this.Version, this.scriptLineCount, this.redundantLineCount)>;
+
+typedef struct {
+    byte Data[FileSize() - sizeof(SCB_HEADER) - 8];
+} SCRIPT_PAYLOAD <name="Script Data">;
+
+typedef struct {
+    uint magicMarker <name="Magic Marker", comment="Written as 8">;
+    uint totalSize   <name="Total Size",   comment="The updated size offset">;
+} SCB_FOOTER <name="Footer", read=Str("Magic Marker: %u | Total Size: %u", this.magicMarker, this.totalSize)>;
+
+//------------------------------------------------------------------------------------
+
+struct {
+    SCB_HEADER header;
+    SCRIPT_PAYLOAD script;
+    SCB_FOOTER footer;
+} SCB <name="Terminal Reality Infernal Engine .SCB Binary Script">;
+
+//------------------------------------------------------------------------------------

@@ -13,11 +13,9 @@
 
 #include "../Common.bt"
 
-//-------------------------------------------------------------------------------------------
-
 typedef struct {
     VEC3F Positions;
-    VEC2F UVs;
+    VEC2F UV;
     VEC4UB Normals;
     VEC4UB Tangents;
     uint VertexColor <name="Vertex Color", comment="RGBA Format in Linear Colorspace", format=hex>;
@@ -83,6 +81,6 @@ struct {
     BigEndian();
     uint MeshCount <name="Mesh Count">;
     if (MeshCount > 0) Mesh mesh[MeshCount] <optimize=false>;
-} BModel <name="id Software id Tech 5 .BModel File">;
+} BModel <name="id Software id Tech 5 .BModel Static Mesh">;
 
 //-------------------------------------------------------------------------------------------

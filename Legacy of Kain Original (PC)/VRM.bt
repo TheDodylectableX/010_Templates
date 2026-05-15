@@ -5,11 +5,13 @@
 //   Authors: Dodylectable
 //   Version: 1.0
 //   Purpose: Reverse engineering Legacy of Kain: Soul Reaver I-II | Defiance (Remastered)'s original textures
-//  Category: Images
+//  Category: Archives, Images / Textures
 // File Mask: *(.x64).vrm
 //  ID Bytes: 
 //   History: 
 //-------------------------------------------------------------------------------------------------------------
+
+LittleEndian();
 
 typedef enum <ushort> {
     RGBA32 = 3,
@@ -21,15 +23,15 @@ typedef enum <ushort> {
 
 typedef struct {
     uint imageCount <name="Image Count">;
-    char imageName[28] <name="Name">;
+    char imageName[28] <name="Image Name">;
 } Header <name="Header">;
 
 typedef struct {
-    ushort imageID; // Some have identical IDs
-    FORMAT imageFormat;
-    ushort imageWidth, imageHeight;
-    uint   imageSize,  imageFlags;
-    byte   imageData  [imageSize];
+    ushort imageID <name="Image ID">; // Some have identical IDs
+    FORMAT imageFormat <name="Image Format">;
+    ushort imageWidth <name="Image Width">, imageHeight <name="Image Height">;
+    uint   imageSize <name="Image Size">, imageFlags <name="Image Flags">;
+    byte   imageData[imageSize] <name="Image Data">;
 } Image <name="Images", read=Str("Image ID: %d | Image Format: %s | Image Dimensions: %dx%d | Image Size: %d bytes", this.imageID, EnumToString(this.imageFormat), this.imageWidth, this.imageHeight, this.imageSize)>;
 
 //-------------------------------------------------------------------------------------------------------------
@@ -37,6 +39,6 @@ typedef struct {
 struct {
     Header header;
     if (header.imageCount > 0) Image images[header.imageCount] <optimize=false>;
-} VRM <name="Legacy of Kain: Soul Reaver | Defiance (Remastered) (.X64).VRM File">;
+} VRM <name="Legacy of Kain: Soul Reaver | Defiance (Remastered) (.X64).VRM Image Container">;
 
 //-------------------------------------------------------------------------------------------------------------

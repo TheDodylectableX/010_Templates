@@ -21,8 +21,6 @@ const string Type <hidden=true> = "Default";
 // You'll want to switch the vertex structure from Default to HD!
 const string VertexStructure <hidden=true> = "Default";
 
-//------------------------------------------------------------------------
-
 typedef struct { // Thanks MuruCoder for figuring the shaders out
     uint Type <name="Shader Type">;
     VEC4F Parameters <name="Shader Parameters">;
@@ -95,6 +93,6 @@ struct {
     if (FaceCount > 0) Triangles triangles[FaceCount / 3] <name="Triangles", optimize=false>;
     while (!ReadShort()) FSkip(2);
     if (VertexCount > 0) Vertices vertices[VertexCount] <name="Vertices", optimize=false>;
-} TRM <name="Tomb Raider I-V Remastered .TRM Model", comment="Tomb Raider I-V Remastered .TRM File">;
+} TRM <name="Tomb Raider I-V Remastered .TRM Model">;
 
 //------------------------------------------------------------------------

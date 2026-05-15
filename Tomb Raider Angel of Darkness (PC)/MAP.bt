@@ -14,8 +14,6 @@
 // The textures are inside the TEX folder.
 // Each entry is 16 bytes long but most textures are 15 characters long only.
 
-//------------------------------------------------------------------------------------------
-
 typedef struct { uint TextureCount; } Header <name="Header", read=Str("%d Textures", this.TextureCount)>;
 
 typedef struct { char TextureName[16]; } Texture <name="Texture", read=Str("%s.DDS", this.TextureName)>;
@@ -25,6 +23,6 @@ typedef struct { char TextureName[16]; } Texture <name="Texture", read=Str("%s.D
 struct {
     Header header;
     if (header.TextureCount > 0) Texture texture[header.TextureCount] <optimize=false>;
-} MAP <name="Tomb Raider: Angel of Darkness Remastered .MAP File">;
+} MAP <name="Tomb Raider: Angel of Darkness Remastered .MAP Texture List">;
 
 //------------------------------------------------------------------------------------------

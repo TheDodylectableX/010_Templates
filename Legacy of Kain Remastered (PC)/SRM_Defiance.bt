@@ -2,7 +2,7 @@
 //--- 010 Editor Binary Template
 //
 //      File: SRM.bt
-//   Authors: Dodylectable, MuruCoder, neptuwunium
+//   Authors: Dodylectable, MuruCoder, neptuwunium (Shader Research)
 //   Version: 1.0
 //   Purpose: Reverse engineering the Legacy of Kain: Defiance Remastered models
 //  Category: Models
@@ -14,8 +14,6 @@
 LittleEndian();
 #include "../Common.bt"
 local int g_LODCounter <hidden=true> = 1;
-
-//-------------------------------------------------------------------------------
 
 typedef struct { // Thanks neptuwunium for figuring the shaders out
     uint ShaderType;
@@ -54,7 +52,7 @@ typedef struct {
 
 typedef struct { VEC3US Triangles; } Triangles <name="Triangles">;
 
-//----------------------------------------
+//-------------------------------------------------------------------------------
 
 struct LOD;
 
@@ -86,11 +84,13 @@ typedef struct {
     if (FaceCount > 0) Triangles triangles[FaceCount/3] <optimize=false>;
 } LOD <name="Mesh", read=ReadLOD>;
 
-//----------------------------------------
+//-------------------------------------------------------------------------------
 
 struct {
     char Magic[4] <name="Magic", comment="Magic of the format">;
     uint LODCount;
-    VEC4F Bounds; // Bounding Box
+    VEC4F BoundingBox <name="Bounding Box">;
     if (LODCount > 0) LOD lods[LODCount] <optimize=false>;
 } SRM <name="Legacy of Kain: Defiance Remastered .SRM Model">;
+
+//-------------------------------------------------------------------------------

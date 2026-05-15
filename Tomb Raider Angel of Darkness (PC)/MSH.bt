@@ -14,8 +14,6 @@
 LittleEndian();
 #include "../Common.bt"
 
-//------------------------------------------------------------------------------------------------
-
 typedef struct {
     uint FileSize <name="File Size">;
     uint64 Version;
@@ -53,6 +51,6 @@ struct {
     if (header.VertexCount > 0) Vertices vertices[header.VertexCount] <optimize=false>;
     if (header.FaceCount > 0) VEC3US Faces[header.FaceCount / 3] <optimize=false>;
     if (header.MeshCount > 0) Material material[header.MeshCount] <optimize=false>;
-} MSH <name="Tomb Raider: Angel of Darkness Remastered .MSH File">;
+} MSH <name="Tomb Raider: Angel of Darkness Remastered .MSH Static Mesh">;
 
 //------------------------------------------------------------------------------------------------

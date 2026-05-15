@@ -1,0 +1,86 @@
+//---------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: HXMESH.bt
+//   Authors: Dodylectable, PikminGuts92 and Maxton (Initial Research)
+//   Version: 1.0
+//   Purpose: Reverse engineering Harmonix' Forge Engine's models
+//  Category: Models
+// File Mask: *.fbx++mesh++*
+//  ID Bytes: 48 58 4D 45 53 48 0D DA
+//   History: 
+//---------------------------------------------------------------------
+
+// https://github.com/maxton/LibForge/blob/master/010/HxMesh.bt
+
+LittleEndian();
+#include "../Common.bt"
+
+typedef enum <uint> {
+    BIG    = 0,
+    LITTLE = 1
+} ENDIANNESS;
+
+typedef enum <uint> {
+    COLOR                = 0,
+    COLOR_TEX            = 2,
+    UNSKINNED            = 3,
+    SKINNED              = 4,
+    POSITIONS_ONLY       = 5,
+    PARTICLE             = 6,
+    UNSKINNED_COMPRESSED = 7,
+    SKINNED_COMPRESSED   = 8
+} VertexType;
+
+//---------------------------------------------------------------------
+
+typedef struct {
+    char Magic[8];
+    ENDIANNESS Endianness;
+    if (Endianness == BIG) BigEndian(); else LittleEndian();
+    uint Version <comment="RBVR PC and RB4 PS4 are v15">;
+    VertexType vertexType <name="Vertex Data Type", comment="This determines what type of vertex data this model carries">;
+
+    uint VertexCount <name="Vertex Count">;
+    uint FaceCount   <name="Face Count">;
+
+    if (Version >= 12) byte V12Bools[2] <name="Version 12 Booleans">;
+    if (Version >= 13) byte V13Bools[2] <name="Version 13 Booleans">;
+    if (Version > 3)   byte keepMeshData; // bool
+
+    uint vertexUsageFlags <name="Vertex Data Usage Flags">;
+    uint faceUsageFlags   <name="Face Data Usage Flags">;
+    if (Version > 10) uint flagOfSorts;
+
+    VEC4F BoundingBox; // Unsure of the directions
+} Header <name="Header", read=Str("Version %d | Vertex Data Type: %s | %d Vertices | %d Faces", this.Version, EnumToString(this.vertexType), this.VertexCount, this.FaceCount)>;
+
+typedef struct { // Base vertex entry without ColorTex or UnskinnedCompressed is 52 bytes long
+    VEC3F Positions;
+    VEC3SS Normals    <comment="Signed">;
+    FSkip(2); // Alignment padding
+    VEC3SS Tangents   <comment="Signed">;
+    FSkip(2); // Alignment padding
+    VEC3SS Bitangents <comment="Signed, TBN is Left-Handed: (T x B).N = -1">;
+    FSkip(2); // Alignment padding
+    VEC4HF VertexColor <name="Vertex Color", comment="RGBA Format">;
+    VEC2HF UV1;
+    VEC2HF UV2;
+
+    if (header.vertexType == UNSKINNED_COMPRESSED || header.vertexType == SKINNED_COMPRESSED) {
+        VEC4US BoneWeights <name="Bone Weights">;
+        VEC4UB BoneIndices <name="Bone Indices">;
+    }
+
+    if (header.vertexType == COLOR_TEX) { byte unkColorTex[28]; }
+} Vertex;
+
+//---------------------------------------------------------------------
+
+struct {
+    Header header;
+    Vertex Vertices[header.VertexCount] <optimize=false>;
+    VEC3UI Triangles[header.FaceCount];
+} HXMESH <name="Harmonix Forge Engine HXMESH Model">;
+
+//---------------------------------------------------------------------

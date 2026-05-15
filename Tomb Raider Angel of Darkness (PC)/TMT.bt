@@ -2,7 +2,7 @@
 //--- 010 Editor Binary Template
 //
 //      File: TMT.bt
-//   Authors: Dodylectable, Nakamichi680
+//   Authors: Dodylectable, Nakamichi680 (Initial Research)
 //   Version: 1.0
 //   Purpose: Reverse engineering TR: Angel of Darkness' morph targets
 //  Category: Models
@@ -19,8 +19,6 @@
 
 LittleEndian();
 #include "../Common.bt"
-
-//---------------------------------------------------------------------
 
 typedef struct {
     char Magic[4];
@@ -51,6 +49,6 @@ struct {
     Header header <bgcolor=cLtPurple>;
     local int totalMorphTargetCount <hidden=true> = header.morphTargetCount + 1;
     VertexBlock Vertices(totalMorphTargetCount)[header.vertexCount] <bgcolor=cLtBlue, optimize=false>;
-} TMT <name="Tomb Raider: Angel of Darkness .TMT File">;
+} TMT <name="Tomb Raider: Angel of Darkness (Remastered) .TMT Morph Target">;
 
 //---------------------------------------------------------------------

@@ -1,4 +1,4 @@
-//---------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
 //      File: POD.bt
@@ -7,50 +7,123 @@
 //   Purpose: Reverse engineering Terminal Reality's Infernal Engine archives
 //  Category: Archives
 // File Mask: *.POD
-//  ID Bytes: 50 4F 44 32 | 50 4F 44 33 | 50 4F 44 35
+//  ID Bytes: 50 4F 44 32 | 50 4F 44 33 | 50 4F 44 35 | 50 4F 44 36
 //   History: 
-//---------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 LittleEndian();
 
-//---------------------------------------------------------------------------
+typedef enum <uint> {
+    UNCOMPRESSED    = 0,
+    COMPRESSED_ZLIB = 8
+} COMPRESSION_FLAG; // POD6 Only.
 
-typedef struct {
-    char Magic[4];
-    uint HeaderUnknown <format=hex>;
-    char ArchiveDescription[80] <name="Archive Description">;
-    uint fileCount <name="File Count">;
-    if (Magic == "POD2") {
-        uint trailingUnknown <comment="Trailing padding">;
-        local uint fileTableOffset <hidden=true> = 0x60; 
-    } else if (Magic == "POD3") {
-        uint padding[43] <hidden=true, comment="172 bytes of empty padding">; 
-        uint fileTableOffset <name="File Table Offset", format=hex, comment="Absolute offset to the file table">;
-    } else { Warning("Invalid Magic Signature! Expected 'POD2', 'POD3' or 'POD5'."); local uint fileTableOffset <hidden=true> = 0; }
-} Header <name="Header", read=Str("%s Archive | %d Files | ''%s''", this.Magic, this.fileCount, this.ArchiveDescription)>;
+//----------------------------------------------------------------------------
 
-typedef struct (uint stringTableOffset) {
-    uint nameOffset <format=hex, name="File Name Offset", comment="Offset relative to the String Table">;
-    uint fileSize   <format=hex, name="File Size">;
-    uint fileOffset <format=hex, name="File Offset", comment="Absolute offset to file data">;
-    uint Padding[2] <hidden=true>;
-    local uint64 returnPos <hidden=true> = FTell();
+typedef struct { // We peek at the first 3 bytes without declaring the variable yet, This is needed for games before the POD2 format.
+    local string magicCheck <hidden=true> = ReadString(0, 3);
 
-    FSeek(stringTableOffset + nameOffset);
-    string fileName <name="File Name">;
-    FSeek(returnPos);
-} FileEntry <read=Str("%s | File Size: %d bytes | File Offset: %d", this.fileName, this.fileSize, this.fileOffset), optimize=false>;
+    if (magicCheck == "POD") {
+        char Magic[4];
+        if (Magic == "POD6") {
+            uint fileCount <name="File Count">;
+            uint Version <name="Version">;
+            uint fileTableOffset <name="File Table Offset">;
+            uint stringTableSize <name="String Table Size">;
 
-//---------------------------------------------------------------------------
+            local uint archiveVersion <hidden=true> = 6;
+            local uint entrySize <hidden=true> = 24;
+            local uint stringTableOffset <hidden=true> = fileTableOffset + (fileCount * entrySize);
+            local string archiveDescription <hidden=true> = "Ghostbusters: The Video Game Archive";
+        } 
+        else { //--- POD2, POD3, and POD5 all share this shared header
+            uint headerUnknown <name="Header Unknown", format=hex>;
+            char archiveDescription[80] <name="Archive Description">;
+            uint fileCount <name="File Count">;
+            if (Magic == "POD2") {
+                uint Unknown <format=hex>;
+
+                local uint archiveVersion <hidden=true> = 2;
+                local uint entrySize <hidden=true> = 20;
+                local uint fileTableOffset <hidden=true> = 96;
+                local uint stringTableOffset <hidden=true> = fileTableOffset + (fileCount * entrySize);
+            } 
+            else if (Magic == "POD3") {
+                FSkip(172); // Reserved
+                uint fileTableOffset <name="File Table Offset">;
+
+                local uint archiveVersion <hidden=true> = 3;
+                local uint entrySize <hidden=true> = 20;
+                local uint stringTableOffset <hidden=true> = fileTableOffset + (fileCount * entrySize);
+            }
+            else if (Magic == "POD5") {
+                FSkip(172); // Reserved
+                uint fileTableOffset <name="File Table Offset">;
+                uint Unknown <format=hex>;
+                uint stringTableSize <name="String Table Size">;
+
+                local uint archiveVersion <hidden=true> = 5;
+                local uint stringTableOffset <hidden=true> = FileSize() - stringTableSize;
+                local uint entrySize <hidden=true> = (stringTableOffset - fileTableOffset) / fileCount;
+            }
+        }
+    }
+    else { //--- Legacy Format
+        uint fileCount <name="File Count">;
+        char archiveDescription[80] <name="Archive Description">;
+
+        local uint archiveVersion <hidden=true> = 1;
+        local uint entrySize <hidden=true> = 0;
+        local uint fileTableOffset <hidden=true> = 84; 
+        local uint stringTableOffset <hidden=true> = 0;
+        local string Magic <hidden=true> = "POD1"; // POD1 doesn't exist, I just put it here for aesthetic reasons
+    }
+} Header <name="Header", read=Str("%s Archive | %d Files | ''%s''", this.Magic, this.fileCount, this.archiveDescription)>;
+
+typedef struct (uint Version, uint stringTableStart, uint entrySize) {
+    local uint64 entryStart <hidden=true> = FTell();
+
+    if (Version == 1) {
+        char fileName[32] <name="File Name">;
+        uint fileSizeDisk <name="File Size">;
+        uint fileOffset   <name="File Offset">;
+    }
+    else {
+        uint fileNameOffset <name="File Name Offset">;
+        if (Version >= 5) uint fileSizeDisk <name="File Size (Compressed)">;
+        else uint fileSizeDisk <name="File Size">;
+        uint fileOffset <name="File Offset">;
+        
+        if (Version >= 5) uint fileSizeUncompressed <name="File Size (Uncompressed)">;
+        if (Version == 6) { COMPRESSION_FLAG fileFlags <name="Flags", format=hex>; FSkip(4); } // Reserved
+        else if (Version < 5) FSkip(8); // Reserved
+
+        local uint64 returnPosition <hidden=true> = FTell();
+        FSeek(stringTableStart + fileNameOffset);
+        string fileName <name="File Name">;
+        FSeek(returnPosition);
+    }
+
+    local uint64 currentPosition <hidden=true> = FTell();
+    if (currentPosition - entryStart < entrySize) FSkip(entrySize - (currentPosition - entryStart));
+
+    local uint64 nextEntryPosition <hidden=true> = FTell();
+    if (fileSizeDisk > 0 && fileOffset > 0 && (fileOffset + fileSizeDisk <= FileSize())) { 
+        FSeek(fileOffset); 
+        byte fileData[fileSizeDisk] <name="File Data">; 
+    }
+    FSeek(nextEntryPosition);
+
+} FileEntry <read=Str("%s | File Size: %d bytes | File Offset: %d", this.fileName, this.fileSizeDisk, this.fileOffset), optimize=false>;
+
+//----------------------------------------------------------------------------
 
 struct {
     Header header;
     if (header.fileCount > 0) {
         FSeek(header.fileTableOffset);
-        local uint stringTableStart <hidden=true> = header.fileTableOffset + (header.fileCount * 20);
-    
-        struct { FileEntry entries(stringTableStart)[header.fileCount]; } FileTable <name="File Directory Table">;
+        struct { FileEntry File(header.archiveVersion, header.stringTableOffset, header.entrySize)[header.fileCount]; } FileTable <name="File Table">;
     }
 } POD <name="Terminal Reality Infernal Engine .POD Archive">;
 
-//---------------------------------------------------------------------------
+//----------------------------------------------------------------------------

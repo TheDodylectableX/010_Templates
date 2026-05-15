@@ -17,18 +17,14 @@
 // If INDEX Type is 3 (WOLF) or 4 (D2/DoTO/DLOOP) then it's an actual index, if it's 3 (WOLF) or 5 (D2/DoTO/DLOOP) then it's an actual resources archive
 // INDEX Type, Magic, INDEX Version and Resource Count is stored are in BE, Referenced INDEX and the actual INDEX list are stored in LE
 
-//-----------------------------------------------------------------------------------------------
-
 #include "../Common.bt"
 local ushort INDEXVersionSwitch <hidden=true>;
-
-//-----------------------------------------------------------------------------------------------
 
 typedef struct {
     
     BigEndian();
     ubyte INDEXType <name="INDEX Type", comment="4 = Index / 5 = Resources">;
-    char Magic[3] <name="Magic", comment="Always SER">;
+    char Magic[3]   <name="Magic", comment="Always SER">;
     ushort INDEXVersion <name="INDEX Version", comment="The version of the INDEX">; INDEXVersionSwitch = INDEXVersion;
 
     if (INDEXVersion == 3) { LittleEndian(); String ReferencedIndex <name="Referenced INDEX", comment="The referenced INDEX that houses all file listings of the game">; }
@@ -64,8 +60,8 @@ typedef struct {
 
 struct {
     Header header;
-    if (INDEXVersionSwitch < 3 && header.IndexCount > 0) INDEXListing indexlisting[header.IndexCount] <optimize=false>;
-    else if (INDEXVersionSwitch >= 3 && header.IndexCount > 0) INDEXListingV2 indexlisting[header.IndexCount] <optimize=false>;
+    if (INDEXVersionSwitch < 3 && header.IndexCount > 0) INDEXListing indexListing[header.IndexCount] <optimize=false>;
+    else if (INDEXVersionSwitch >= 3 && header.IndexCount > 0) INDEXListingV2 indexListing[header.IndexCount] <optimize=false>;
 
     // Resources section only applies to versions < 3 but not 0
     if (INDEXVersionSwitch < 3 && INDEXVersionSwitch != 0) {
@@ -73,14 +69,14 @@ struct {
         uint ResourceCount <name="Resources Count">;
 
         LittleEndian();
-        ResourcesListing resourceslisting[ResourceCount] <optimize=false>;
+        ResourcesListing resourcesListing[ResourceCount] <optimize=false>;
     }
     
     if (INDEXVersionSwitch == 2) {
         BigEndian();
         uint SharedResourcesCount <name="Shared Resources Count">;
-        SharedResourcesListing sharedresourceslisting[SharedResourcesCount] <optimize=false>;
+        SharedResourcesListing sharedResourcesListing[SharedResourcesCount] <optimize=false>;
     }
-} INDEX <name="id Tech 5 ''master.index'' Template", comment="master.index Structure">;
+} INDEX <name="id Software id Tech 5 ''master.index'' File", comment="master.index Structure">;
 
 //-----------------------------------------------------------------------------------------------

@@ -176,6 +176,6 @@ typedef struct {
 struct {
     Header header;
     if (header.FileCount > 0) Files files[header.FileCount] <comment="INDEX File Listing", optimize=false>;
-} VOIDIndex <comment="VOID Engine .INDEX File", name="VOID Engine .INDEX File">;
+} VOIDIndex <comment="Arkane Studios VOID Engine ''master_resources.index'' File", name="VOID Engine .INDEX File">;
 
 //-----------------------------------------------------------------------------------------------

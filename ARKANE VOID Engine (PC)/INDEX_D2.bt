@@ -11,16 +11,14 @@
 //   History: 
 //----------------------------------------------------------------------------------------
 
-// Header data and file metadata are in BE, Everything else is LE
-
-//----------------------------------------------------------------------------------------
+#include "../Common.bt"
 
 typedef struct {
     BigEndian();
     ubyte INDEXType <name="INDEX Type", comment="4 = Index / 5 = Resources">;
-    char Magic[3] <name="Magic", comment="Always SER">;
-    uint INDEXSize <name="INDEX Size", comment="Size of this file minus 32 bytes">;
-    FSkip(24);       // Reserved
+    char Magic[3]   <name="Magic", comment="Always SER">;
+    uint INDEXSize  <name="INDEX Size", comment="Size of this file minus 32 bytes">;
+    FSkip(24); // Reserved
     uint FileCount <name="File Count">;
 } Header <name="Header", comment="The header of this index", read=Str("INDEX Type: %d | INDEX Magic: %s | INDEX Size: %d | File Count: %d Files", this.INDEXType, this.Magic, this.INDEXSize, this.FileCount)>;
 
@@ -29,23 +27,23 @@ typedef struct {
     uint ResourceIndex;
     LittleEndian();
     String FileType <name="File Type", comment="What type of file this is">;
-    String FileListingUncooked <name="File Listing (Uncooked)", comment="Uncooked file listing, Referenced in DECLs and the files themselves">;
-    String FileListingCooked <name="File Listing (Cooked)", comment="Cooked file listing, the file's actual path">;
+    String ResourceListingUncooked <name="File Listing (Uncooked)", comment="Uncooked file listing, Referenced in DECLs and the files themselves">;
+    String ResourceListingCooked <name="File Listing (Cooked)", comment="Cooked file listing, the file's actual path">;
     BigEndian(); // File metadata is Big Endian
     uint64 FileOffset <name="Primary File Offset", comment="Where the file is located">;
     uint FileSizeUncompressed <name="File Size (Uncompressed)", comment="Uncompressed">;
-    uint FileSizeCompressed <name="File Size (Compressed)", comment="Compressed">;
+    uint FileSizeCompressed <name="File Size (Compressed)", comment="ZLib">;
     FSkip(4); // Padding
     uint PrimaryFileFlags <name="File Flags", comment="File Flags">;
     ushort SecondaryFileFlags;
     LittleEndian();
-} Files <read=this.FileListingCooked.ActualString, comment="INDEX File Listing", name="INDEX File Listing">;
+} Files <read=this.ResourceListingCooked.ActualString, comment="INDEX File Listing", name="INDEX File Listing">;
 
 //----------------------------------------------------------------------------------------
 
 struct {
     Header header;
     if (header.FileCount > 0) Files files[header.FileCount] <comment="INDEX File Listing", optimize=false>;
-} VOIDIndex <comment="VOID Engine .INDEX File", name="VOID Engine .INDEX File">;
+} VOIDIndex <comment="Arkane Studios VOID Engine .INDEX File", name="VOID Engine .INDEX File">;
 
 //----------------------------------------------------------------------------------------

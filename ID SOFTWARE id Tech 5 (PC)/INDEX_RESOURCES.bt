@@ -11,10 +11,7 @@
 //   History: 
 //------------------------------------------------------------------------------------------
 
-// .resources Archives are ZLib compressed
 #include "../Common.bt"
-
-//------------------------------------------------------------------------------------------
 
 typedef struct {
     BigEndian();
@@ -25,9 +22,9 @@ typedef struct {
 } Header;
 
 typedef struct {
-    char Language[16] <name="Platform Stream Data Language">;
+    char Language[16]     <name="Platform Stream Data Language">;
     uint streamDataOffset <name="Platform Stream Data Offset">;
-    uint streamDataSize <name="Platform Stream Data Size">;
+    uint streamDataSize   <name="Platform Stream Data Size">;
 } idPlatformStreamData;
 
 typedef struct {

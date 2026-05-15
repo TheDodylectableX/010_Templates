@@ -1,0 +1,43 @@
+//----------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: VIV.bt
+//   Authors: Dodylectable
+//   Version: 1.0
+//   Purpose: Reverse engineering Electronic Arts' EAGL engine archives
+//  Category: Archives
+// File Mask: *.viv | *.big
+//  ID Bytes: 42 49 47 46
+//   History: 
+//----------------------------------------------------------------------
+
+BigEndian();
+
+typedef struct {
+    char Magic[4];
+    //LittleEndian();
+    uint FileSize   <name="File Size", comment="Stored in LE for some games.">;
+    BigEndian();
+    uint FileCount  <name="File Count">;
+    uint HeaderSize <name="Header Size", comment="Total size of header (16 bytes) + All file entries.">;
+} Header <name="Header", read=Str("%s Archive | %u bytes | %u Files", this.Magic, this.FileSize, this.FileCount)>;
+
+typedef struct {
+    uint fileOffset <name="File Offset">;
+    uint fileSize <name="File Size">;
+    string fileName <name="File Name">;
+    
+    local uint64 currentPosition <hidden=true> = FTell();
+    FSeek(fileOffset);
+    if (fileSize > 0) byte fileData[fileSize] <name="File Data">;
+    FSeek(currentPosition);
+} Entry <name="File Entry", read=Str("%s | File Size: %u | File Offset: %u", this.fileName, this.fileSize, this.fileOffset)>;
+
+//----------------------------------------------------------------------
+
+struct {
+    Header header;
+    Entry files[header.FileCount] <optimize=false>;
+} VIV <name="EA Graphics Library Engine .VIV | .BIG Archive">;
+
+//----------------------------------------------------------------------

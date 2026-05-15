@@ -22,10 +22,10 @@ LittleEndian();
 uint FileSize <comment="True data length before sector padding">;
 
 if (ReadUInt(FTell()) == 0x78563412) { // User parsed versiontag.bin for some reason, Only file in the games that isn't compressed.
-    uint32 sentinel1 <format=hex, fgcolor=cPurple>;
-    uint32 deadBabe  <format=hex, fgcolor=cPurple>;
-    uint32 coffee    <format=hex, fgcolor=cPurple>;
-    uint32 deadBeef  <format=hex, fgcolor=cPurple>;
+    uint sentinel1 <format=hex, fgcolor=cPurple>;
+    uint deadBabe  <format=hex, fgcolor=cPurple>;
+    uint coffee    <format=hex, fgcolor=cPurple>;
+    uint deadBeef  <format=hex, fgcolor=cPurple>;
 } else { //--- LZO CHUNKS
     while (FTell() < FileSize + 4) {
 
@@ -49,3 +49,5 @@ if (ReadUInt(FTell()) == 0x78563412) { // User parsed versiontag.bin for some re
 
 // ---SECTOR PADDING ---
 if (!FEof()) { ubyte trailingSectorPadding[FileSize() - FTell()] <fgcolor=cDkGray, comment="Zero padding to 2048 boundary">; }
+
+//---------------------------------------------------------------------------------

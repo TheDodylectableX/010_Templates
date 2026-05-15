@@ -1,0 +1,77 @@
+//--------------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: MUK.bt
+//   Authors: Dodylectable, barncastle (Initial Research)
+//   Version: 1.0
+//   Purpose: Reverse engineering Saffire's Bio F.R.E.A.K.S. archive format
+//  Category: Archives
+// File Mask: *.MUK
+//  ID Bytes: 
+//   History: 
+//--------------------------------------------------------------------------
+
+// https://gist.github.com/barncastle/f562a5f20b6cf01cb35136cf0e53e746
+
+LittleEndian();
+
+typedef enum <uint> {
+    NONE               = 0,
+    GRAPHICS_ASSET_1   = 2,
+    GAME_ASSET_1       = 3,
+    GAME_ASSET_2       = 4,
+    GRAPHICS_ASSET_2   = 5,
+    GAME_ASSET_3       = 10,
+    GRAPHICS_ASSET_3   = 11,
+    GAME_ASSET_4       = 12,
+    GAME_ASSET_UNKNOWN = 255,
+} ASSET_TYPE; // PC Only
+
+//--------------------------------------------------------------------------
+
+typedef struct {
+    ushort Version;
+    ushort fileCount <name="File Count", comment="Not always filled.">;
+    uint fileNameLength <name="File Name Length">;
+} Header <name="Header", read=Str("MUK Archive Version %u | %u Files", this.Version, this.fileCount)>;
+
+typedef struct {
+    char fileName[header.fileNameLength] <name="File Name">;
+    ASSET_TYPE fileType <name="File Type">; // PC Only!
+    uint fileSize       <name="File Size">;
+    uint fileOffset     <name="File Offset">;
+
+    local uint64 currentPosition <hidden=true> = FTell();
+    FSeek(fileOffset);
+    if (fileSize > 0) byte fileData[fileSize] <name="File Data">;
+    FSeek(currentPosition);
+} File <read=Str("%s | File Type: %s | File Size: %u bytes | File Offset: %u", this.fileName, EnumToString(this.fileType), this.fileSize, this.fileOffset)>;
+
+/* // Structure for MASTER.MUK from the PS1 version, Header doesn't exist on there.
+struct {
+    char fileName[8] <name="File Name">;
+    uint fileSize    <name="File Size">;
+    uint fileOffset  <name="File Offset">;    
+} File[510] <read=fileName, optimize=false>;
+*/
+
+//--------------------------------------------------------------------------
+
+struct {
+    Header header;
+
+    struct {
+        local int remainingFiles <hidden=true> = header.fileCount;
+        while (remainingFiles > 0) {
+            struct {
+                local int chunkCount <name="Chunk Count"> = (remainingFiles > 256) ? 256 : remainingFiles;
+
+                File entries[chunkCount] <name="Entry", optimize=false>;
+                uint nextChunkOffset <name="Next Chunk Offset">;
+            } Chunk;
+            remainingFiles -= 256;
+        }
+    } FileData <name="File Data">;
+} MUK <name="Saffire Bio F.R.E.A.K.S. .MUK Archive">;
+
+//--------------------------------------------------------------------------

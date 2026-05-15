@@ -80,13 +80,13 @@ string ReadUInt48(uint48 &V) {
 // An integer length-prefixed string.
 typedef struct {
     uint Length;
-    char ActualString[Length];
+    char ActualString[Length] <name="Actual String">;
 } String <read=Str("%s", Length > 0 ? ActualString : "")>;
 
 // A short length-prefixed string.
 typedef struct {
     ushort Length;
-    char   ActualString[Length];
+    char   ActualString[Length] <name="Actual String">;
 } StringV2 <read=Str("%s", Length > 0 ? ActualString : "")>;
 
 //-------------------------------------------------------------------------------------------------

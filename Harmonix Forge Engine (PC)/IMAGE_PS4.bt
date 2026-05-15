@@ -1,0 +1,100 @@
+//---------------------------------------------------------------------
+//--- 010 Editor Binary Template
+//
+//      File: IMAGE_PS4.bt
+//   Authors: Dodylectable, PikminGuts92 and Maxton (Initial Research)
+//   Version: 1.0
+//   Purpose: Reverse engineering Harmonix' Forge Engine's PS4 images
+//  Category: Images / Textures
+// File Mask: *.bmp_ps4 | *.png_ps4
+//  ID Bytes: 06 00 00 00 0C 00 00 00
+//   History: 
+//---------------------------------------------------------------------
+
+LittleEndian();
+
+typedef enum <uint> {
+    BC1 = 28,
+    BC3 = 34,
+    BC5 = 37
+} IMAGE_FORMAT_PS4;
+
+typedef enum <uint> {
+    PC  = 9,
+    PS4 = 12
+} PLATFORM_SUBTYPE;
+
+typedef enum <uint> {
+    IMAGE_2D = 3
+} IMAGE_DIMENSION_TYPE;
+
+//---------------------------------------------------------------------
+
+typedef struct {
+    uint imageWidth  <name="Image Width">;
+    uint imageHeight <name="Image Height">;
+    uint imageDepth  <name="Image Depth", comment="Depth Slices (1 for 2D Textures)">;
+    FSkip(8); // Reserved
+} MipEntry <read=Str("Mip Dimensions: %ux%u | Mip Depth: %u", this.imageWidth, this.imageHeight, this.imageDepth)>;
+
+typedef struct {
+    uint mipDataSize <name="Mip Map Data Size">;
+    byte mipData[mipDataSize] <name="Mip Map Data">;
+} Mip <name="Mip", read=Str("Mip Data Size: %u", this.mipDataSize)>;
+
+typedef struct {
+    uint Version <comment="Always 6">;
+    PLATFORM_SUBTYPE Platform;
+
+    uint Constant_008 <comment="Always 1">;
+    uint Constant_00C <comment="Always 1">;
+    uint Constant_010 <comment="Zero">;
+    uint Unknown_014  <comment="3 when it's a BC5 image, 0 if BC1 or BC3, 6 if it's a PBR BC5 image">;
+    uint Constant_018 <comment="Zero">;
+    uint Constant_01C <comment="Zero">;
+    uint Constant_020 <comment="Zero">;
+    uint Constant_024 <comment="Zero">;
+    uint Constant_028 <comment="Zero">;
+    uint Constant_02C <comment="Zero">;
+    uint Constant_030 <comment="Zero">;
+    uint Constant_034 <comment="Zero">;
+    uint Constant_038 <comment="Zero">;
+    uint Constant_03C <comment="Zero">;
+    uint Constant_040 <comment="Zero">;
+    uint Unknown_044  <comment="3 when it's a BC5 image, 0 if BC1 or BC3, 6 if it's a PBR BC5 image">;
+    uint Unknown_048  <comment="3 when it's BC3 image, 0 if BC5 and 1 if BC1">;
+    uint Unknown_04C  <comment="1 when it's a BC5 or BC1 image, 3 if BC3">;
+    uint Constant_050 <comment="Zero">;
+    uint Unknown_054  <comment="1 when it's a BC5 image, 2 if BC1 or BC3">;
+    uint Constant_058;
+    uint Constant_05C;
+    uint Constant_060 <comment="Zero">;
+    uint Constant_064;
+
+    IMAGE_DIMENSION_TYPE imageDimensionType <name="Image Dimension Type">;
+
+    uint Constant_06C <comment="Zero">;
+
+    uint mipFilterFlags <name="Mip Map Filter Flags", comment="Mip filter flags (7 in observed samples)">;
+
+    uint Constant_074 <comment="Zero">;
+
+    IMAGE_FORMAT_PS4 imageFormat <name="Image Format">;
+
+    uint Constant_07C <comment="Zero">;
+    uint Constant_080 <comment="Zero">;
+
+    uint mipMapCount <name="Mip Map Count">;
+    MipEntry mipsMetadata[mipMapCount] <name="Mip Maps Metadata", optimize=false>;
+
+    uint mipDataBlockCount <name="Mip Map Data Block Count", comment="Not always in sync with the actual mip map count">;
+} Header <name="Header">; // OMG SO MANY CONSTANTS!!11
+
+//---------------------------------------------------------------------
+
+struct {
+    Header header;
+    Mip mipsImageData[header.mipMapCount] <optimize=false>;
+} IMAGE_PS4 <name="Harmonix Forge Engine (.bmp/.png_ps4) Image">;
+
+//---------------------------------------------------------------------

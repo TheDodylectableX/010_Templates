@@ -1,15 +1,15 @@
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 //--- 010 Editor Binary Template
 //
 //      File: MUK.bt
 //   Authors: Dodylectable, barncastle (Initial Research)
 //   Version: 1.0
-//   Purpose: Reverse engineering Saffire's Bio F.R.E.A.K.S. archive format
+//   Purpose: Reverse engineering Midway Studios' Bio F.R.E.A.K.S. archive format
 //  Category: Archives
 // File Mask: *.MUK
 //  ID Bytes: 
 //   History: 
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 
 // https://gist.github.com/barncastle/f562a5f20b6cf01cb35136cf0e53e746
 
@@ -17,29 +17,29 @@ LittleEndian();
 
 typedef enum <uint> {
     NONE               = 0,
-    GRAPHICS_ASSET_1   = 2,
+    SKELETAL_MESH_CHARACTER = 2,
     GAME_ASSET_1       = 3,
     GAME_ASSET_2       = 4,
-    GRAPHICS_ASSET_2   = 5,
+    SKELETAL_MESH_BASIC = 5, // Used for stages and props
     GAME_ASSET_3       = 10,
-    GRAPHICS_ASSET_3   = 11,
+    VISUAL_EFFECT_MAYBE = 11, // Magic is MINA, That's ANIM reversed but the files don't look like animations...
     GAME_ASSET_4       = 12,
     GAME_ASSET_UNKNOWN = 255,
-} ASSET_TYPE; // PC Only
+} ASSET_TYPE;
 
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 
 typedef struct {
     ushort Version;
     ushort fileCount <name="File Count", comment="Not always filled.">;
-    uint fileNameLength <name="File Name Length">;
+    uint fileNameLength <name="File Name Length", comment="Always 8 characters long">;
 } Header <name="Header", read=Str("MUK Archive Version %u | %u Files", this.Version, this.fileCount)>;
 
 typedef struct {
     char fileName[header.fileNameLength] <name="File Name">;
-    ASSET_TYPE fileType <name="File Type">; // PC Only!
+    ASSET_TYPE fileType <name="File Type", comment="This only exists on the PC version">;
     uint fileSize       <name="File Size">;
-    uint fileOffset     <name="File Offset">;
+    uint fileOffset     <name="File Offset", comment="Absolute">;
 
     local uint64 currentPosition <hidden=true> = FTell();
     FSeek(fileOffset);
@@ -55,7 +55,7 @@ struct {
 } File[510] <read=fileName, optimize=false>;
 */
 
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
 
 struct {
     Header header;
@@ -72,6 +72,6 @@ struct {
             remainingFiles -= 256;
         }
     } FileData <name="File Data">;
-} MUK <name="Saffire Bio F.R.E.A.K.S. .MUK Archive">;
+} MUK <name="Midway Studios Bio F.R.E.A.K.S. .MUK Archive">;
 
-//--------------------------------------------------------------------------
+//--------------------------------------------------------------------------------
